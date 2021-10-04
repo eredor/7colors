@@ -22,4 +22,19 @@ void set_cell(int x, int y, char color);
  */
 void print_board(void);
 
+/** Initialize the board */
+void init_board();
+
+/** Update the board */
+void update_board(char letter, char player);
+
+/** Return 1 if the given cell has a neighbouring cell owned by the given player*/
+int is_player_neighbour(int x, int y, char player);
+
+/** Main loop */
+void game_turn(char player);
+
+/** Update game_status*/
+void end_game();
+
 #endif

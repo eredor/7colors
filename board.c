@@ -17,6 +17,16 @@
  * Plus, this path often leads to simpler code, that is easier to test.
  */
 
+/* Players data */
+static char player_one = 'v';
+static int player_one_owned = 1;
+static char player_two = '^';
+static int player_two_owned = 1;
+
+/** Game Statut
+ * 0 when the game is on
+ * X when player X won */
+static int game_status = 0;
 
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
@@ -29,15 +39,14 @@ void init_board(void)
 {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-
             int case_idx = BOARD_SIZE * i + j;
             srand(time(NULL) + case_idx); // initialize random seed
             board[case_idx] = (rand() % 7) + 'A';
-        }
-    }
-    // Initilization of both players' positions
-    board[BOARD_SIZE - 1] = '^';
-    board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
+      }
+  }
+  // Initilization of both players' positions
+  board[BOARD_SIZE - 1] = '^';
+  board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
 }
 
 /** Retrieves the color of a given board cell */
@@ -65,6 +74,85 @@ void print_board(void)
             printf("%c", get_cell(i, j));
         }
         printf("\n");
+    }
+}
+
+/** Initialize the board */
+void init_board() {
+    srand(time(NULL)); // initialize random seed
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            set_cell(j, i, ((rand() % 7) + 'A'));
+        }
+    }
+    set_cell(BOARD_SIZE -1, 0, player_one);
+    set_cell(0, BOARD_SIZE-1, player_two);
+}
+
+/** Update the board */
+void update_board(char letter, char player){
+    int modifications = 0;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i, player)) {
+                set_cell(j, i, player);
+                modifications += 1;
+            }
+        }
+    }
+    if(modifications != 0) {
+        if(player == player_one) {
+            player_one_owned += modifications;
+        }
+        else {
+            player_two_owned += modifications;
+        }
+        update_board(letter, player);
+    }
+}
+
+/** Return 1 if the given cell has a neighbouring cell owned by the given player*/
+int is_player_neighbour(int x, int y, char player) {
+    if (y != 0){
+        if (get_cell(x, y-1)== player) {
+            return 1;
+        }
+    }
+    if (x != BOARD_SIZE) {
+        if (get_cell(x+1, y) == player) {
+            return 1;
+        }
+    }
+    if (y != BOARD_SIZE) {
+        if (get_cell(x, y+1) == player) {
+            return 1;
+        }
+    }
+    if (x != 0) {
+        if (get_cell(x-1, y) == player) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/** Main loop*/
+void game_turn(char player){
+    char letter, c;
+    printf("Enter a letter\n");
+    scanf("%c", &letter);
+    while ((c = getchar()) != '\n' && c != EOF) {}
+    update_board(letter, player);
+    end_game();
+}
+
+/** Update game_status*/
+void end_game() {
+    if (player_one_owned * 2 > BOARD_SIZE) {
+        game_status = 1;
+    }
+    else if (player_two_owned * 2 > BOARD_SIZE){
+        game_status = 2;
     }
 }
 
