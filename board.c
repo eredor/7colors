@@ -24,13 +24,20 @@
 /** Represent the actual current board game */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
-for (int i = 0; i < BOARD_SIZE; i++) {
-    for (int j = 0; j < BOARD_SIZE; j++) {
+/** Initializes the board randomly */
+void init_board(void)
+{
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
 
-        int case_idx = BOARD_SIZE * i + j;
-        srand(time + case_idx); // initialize random seed
-        board[case_idx] = (rand() % 7) + 'A';
+            int case_idx = BOARD_SIZE * i + j;
+            srand(time(NULL) + case_idx); // initialize random seed
+            board[case_idx] = (rand() % 7) + 'A';
+        }
     }
+    // Initilization of both players' positions
+    board[BOARD_SIZE - 1] = '^';
+    board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
 }
 
 /** Retrieves the color of a given board cell */
