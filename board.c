@@ -34,6 +34,47 @@ void set_cell(int x, int y, char color)
     board[y * BOARD_SIZE + x] = color;
 }
 
+/** Update the board */
+void update_board(char* letter, char* player){
+    int modifications = 0;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i, player)) { 
+                set_cell(j, i, player);
+                modifications += 1;
+            }
+        }
+    }
+    if(modifications != 0) {
+        update_board(letter, player);
+    }
+}
+
+/** Return 1 if the given cell has a neighbouring cell owned by the given player*/
+int is_player_neighbour(int x, int y, char* player) {
+    if (y != 0){
+        if (get_cell(x, y-1)== player) { 
+            return 1;
+        }
+    }
+    if (x != BOARD_SIZE) {
+        if (get_cell(x+1, y) == player) { 
+            return 1;
+        }
+    }
+    if (y != BOARD_SIZE) {
+        if (get_cell(x, y+1) == player) { 
+            return 1;
+        }
+    }
+    if (x != 0) {
+        if (get_cell(x-1, y) == player) { 
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /** Prints the current state of the board on screen
  *
  * It would be nicer to do this with ncurse or even SFML or SDL,
