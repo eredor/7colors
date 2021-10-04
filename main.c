@@ -6,11 +6,15 @@
 /** Program entry point */
 int main(void)
 {
+    // Initialiaze the game 
+    init_board();
     printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
-    init_board();
     print_board();
+    printf("Score Player 1 = %d \n", 1);
+    printf("Score Player 2 = %d \n", 1);
+
 
     return 0; // Everything went well
 }

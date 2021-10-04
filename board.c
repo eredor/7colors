@@ -17,6 +17,16 @@
  * Plus, this path often leads to simpler code, that is easier to test.
  */
 
+/* Players data */
+static char player_one = 'v';
+static int player_one_owned = 1;
+static char player_two = '^';
+static int player_two_owned = 1;
+
+/** Game Statut 
+ * 0 when the game is on
+ * X when player X won */
+static int game_status = 0;
 
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
@@ -60,8 +70,8 @@ void init_board() {
             set_cell(j, i, ((rand() % 7) + 'A'));
         }
     }
-    set_cell(BOARD_SIZE -1, 0, 'v');
-    set_cell(0, BOARD_SIZE-1, '^');
+    set_cell(BOARD_SIZE -1, 0, player_one);
+    set_cell(0, BOARD_SIZE-1, player_two);
 }
 
 /** Update the board */
@@ -76,6 +86,12 @@ void update_board(char letter, char player){
         }
     }
     if(modifications != 0) {
+        if(player == player_one) {
+            player_one_owned += modifications;
+        }
+        else {
+            player_two_owned += modifications;
+        }
         update_board(letter, player);
     }
 }
@@ -103,6 +119,26 @@ int is_player_neighbour(int x, int y, char player) {
         }
     }
     return 0;
+}
+
+/** Main loop*/
+void game_turn(char player){
+    char letter, c;
+    printf("Enter a letter\n");
+    scanf("%c", &letter);
+    while ((c = getchar()) != '\n' && c != EOF) {}
+    update_board(letter, player);
+    end_game();
+}
+
+/** Update game_status*/
+void end_game() {
+    if (player_one_owned * 2 > BOARD_SIZE) {
+        game_status = 1;
+    }
+    else if (player_two_owned * 2 > BOARD_SIZE){
+        game_status = 2;
+    }
 }
 
 
