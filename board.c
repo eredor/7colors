@@ -36,18 +36,36 @@ void set_cell(int x, int y, char color)
     board[y * BOARD_SIZE + x] = color;
 }
 
-void init_board() {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            int case_idx = BOARD_SIZE * i + j;
-            srand(time + case_idx); // initialize random seed
-            board[case_idx] = (rand() % 7) + 'A';
+/** Prints the current state of the board on screen
+ *
+ * It would be nicer to do this with ncurse or even SFML or SDL,
+ * but this is not required in this assignment. See the extensions.
+ */
+void print_board(void)
+{
+    int i, j;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            printf("%c", get_cell(i, j));
         }
+        printf("\n");
     }
 }
 
+/** Initialize the board */
+void init_board() {
+    srand(time(NULL)); // initialize random seed
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            set_cell(j, i, ((rand() % 7) + 'A'));
+        }
+    }
+    set_cell(BOARD_SIZE -1, 0, 'v');
+    set_cell(0, BOARD_SIZE-1, '^');
+}
+
 /** Update the board */
-void update_board(char* letter, char* player){
+void update_board(char letter, char player){
     int modifications = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -63,7 +81,7 @@ void update_board(char* letter, char* player){
 }
 
 /** Return 1 if the given cell has a neighbouring cell owned by the given player*/
-int is_player_neighbour(int x, int y, char* player) {
+int is_player_neighbour(int x, int y, char player) {
     if (y != 0){
         if (get_cell(x, y-1)== player) { 
             return 1;
@@ -85,22 +103,6 @@ int is_player_neighbour(int x, int y, char* player) {
         }
     }
     return 0;
-}
-
-/** Prints the current state of the board on screen
- *
- * It would be nicer to do this with ncurse or even SFML or SDL,
- * but this is not required in this assignment. See the extensions.
- */
-void print_board(void)
-{
-    int i, j;
-    for (i = 0; i < BOARD_SIZE; i++) {
-        for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c", get_cell(i, j));
-        }
-        printf("\n");
-    }
 }
 
 
