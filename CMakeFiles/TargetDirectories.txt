@@ -1,0 +1,5 @@
+/home/kaznad/7colors/CMakeFiles/rebuild_cache.dir
+/home/kaznad/7colors/CMakeFiles/edit_cache.dir
+/home/kaznad/7colors/CMakeFiles/test.dir
+/home/kaznad/7colors/CMakeFiles/tests.dir
+/home/kaznad/7colors/CMakeFiles/7colors.dir
