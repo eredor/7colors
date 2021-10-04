@@ -24,15 +24,6 @@
 /** Represent the actual current board game */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
-for (int i = 0; i < BOARD_SIZE; i++) {
-    for (int j = 0; j < BOARD_SIZE; j++) {
-
-        int case_idx = BOARD_SIZE * i + j;
-        srand(time + case_idx); // initialize random seed
-        board[case_idx] = (rand() % 7) + 'A';
-    }
-}
-
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y)
 {
@@ -43,6 +34,16 @@ char get_cell(int x, int y)
 void set_cell(int x, int y, char color)
 {
     board[y * BOARD_SIZE + x] = color;
+}
+
+void init_board() {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            int case_idx = BOARD_SIZE * i + j;
+            srand(time + case_idx); // initialize random seed
+            board[case_idx] = (rand() % 7) + 'A';
+        }
+    }
 }
 
 /** Update the board */
