@@ -23,7 +23,7 @@ static int player_one_owned = 1;
 static char player_two = '^';
 static int player_two_owned = 1;
 
-/** Game Statut 
+/** Game Statut
  * 0 when the game is on
  * X when player X won */
 static int game_status = 0;
@@ -33,6 +33,21 @@ static int game_status = 0;
 
 /** Represent the actual current board game */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
+
+/** Initializes the board randomly */
+void init_board(void)
+{
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            int case_idx = BOARD_SIZE * i + j;
+            srand(time(NULL) + case_idx); // initialize random seed
+            board[case_idx] = (rand() % 7) + 'A';
+      }
+  }
+  // Initilization of both players' positions
+  board[BOARD_SIZE - 1] = '^';
+  board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
+}
 
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y)
@@ -79,7 +94,7 @@ void update_board(char letter, char player){
     int modifications = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i, player)) { 
+            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i, player)) {
                 set_cell(j, i, player);
                 modifications += 1;
             }
@@ -99,22 +114,22 @@ void update_board(char letter, char player){
 /** Return 1 if the given cell has a neighbouring cell owned by the given player*/
 int is_player_neighbour(int x, int y, char player) {
     if (y != 0){
-        if (get_cell(x, y-1)== player) { 
+        if (get_cell(x, y-1)== player) {
             return 1;
         }
     }
     if (x != BOARD_SIZE) {
-        if (get_cell(x+1, y) == player) { 
+        if (get_cell(x+1, y) == player) {
             return 1;
         }
     }
     if (y != BOARD_SIZE) {
-        if (get_cell(x, y+1) == player) { 
+        if (get_cell(x, y+1) == player) {
             return 1;
         }
     }
     if (x != 0) {
-        if (get_cell(x-1, y) == player) { 
+        if (get_cell(x-1, y) == player) {
             return 1;
         }
     }

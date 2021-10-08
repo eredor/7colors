@@ -48,10 +48,17 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
+<<<<<<< HEAD
 CMAKE_SOURCE_DIR = /home/asus/7colors/7colors
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/asus/7colors/7colors
+=======
+CMAKE_SOURCE_DIR = /home/kaznad/7colors
+
+# The top-level build directory on which CMake was run.
+CMAKE_BINARY_DIR = /home/kaznad/7colors
+>>>>>>> f2c0f0f25123fe23b036b6a9f1183a7ca9127c8b
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -91,9 +98,15 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
+<<<<<<< HEAD
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/asus/7colors/7colors/CMakeFiles /home/asus/7colors/7colors/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/asus/7colors/7colors/CMakeFiles 0
+=======
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kaznad/7colors/CMakeFiles /home/kaznad/7colors/CMakeFiles/progress.marks
+	$(MAKE) -f CMakeFiles/Makefile2 all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kaznad/7colors/CMakeFiles 0
+>>>>>>> f2c0f0f25123fe23b036b6a9f1183a7ca9127c8b
 .PHONY : all
 
 # The main clean target

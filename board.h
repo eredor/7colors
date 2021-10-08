@@ -6,6 +6,8 @@
 
 /* Note: feel free to modify this API if you need it to clean your code */
 
+/** Initializes the board randomly */
+void init_board(void);
 
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y);

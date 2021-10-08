@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Install script for directory: /home/asus/7colors/7colors
+=======
+# Install script for directory: /home/kaznad/7colors
+>>>>>>> f2c0f0f25123fe23b036b6a9f1183a7ca9127c8b
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +49,9 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
+<<<<<<< HEAD
 file(WRITE "/home/asus/7colors/7colors/${CMAKE_INSTALL_MANIFEST}"
+=======
+file(WRITE "/home/kaznad/7colors/${CMAKE_INSTALL_MANIFEST}"
+>>>>>>> f2c0f0f25123fe23b036b6a9f1183a7ca9127c8b
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
