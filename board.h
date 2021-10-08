@@ -9,6 +9,16 @@
 /** Initializes the board randomly */
 void init_board2(void);
 
+/** Coordinates implementation */
+typedef struct coordinates coordinates_t;
+
+/** Create a coordinates element*/
+coordinates_t* add_coordinates(int x, int y);
+
+/** Getters and setters for coordinates*/
+int get_coordinates_x(coordinates_t* coordinates);
+int get_coordinates_y(coordinates_t* coordinates);
+
 /** Player implementation */
 typedef struct player player_t;
 
@@ -17,9 +27,11 @@ player_t* add_player(char symbol, int ai_type);
 
 /** Getters and setters for player*/
 char get_player_symbol(player_t* player);
-char get_player_square_owned(player_t* player);
+int get_player_square_owned(player_t* player);
 int get_player_ai_type(player_t* player);
 void set_player_square_owned(player_t* player, int square_number);
+coordinates_t* get_player_square_list(player_t* player, int i);
+void add_player_square_list(player_t* player, coordinates_t* coordinates);
 
 /** Getter and setter for the list*/
 player_t* get_player(int i);
@@ -53,6 +65,9 @@ void init_game();
 
 /** Initialize the board */
 void init_board();
+
+/** Upgraded version of upgrade_board*/
+void update_boardV2(char letter, player_t* player);
 
 /** Update the board */
 void update_board(char letter, player_t* player);

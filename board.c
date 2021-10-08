@@ -17,13 +17,37 @@
  * Plus, this path often leads to simpler code, that is easier to test.
  */
 
+/* We want a 30x30 board game by default */
+#define BOARD_SIZE 30
+/* SPOT for the number of colors */
+#define NB_COLORS 7
+/** Coordinates implementation */
+struct coordinates {
+    int x;
+    int y;
+};
+
+/** Create a coordinates element*/
+coordinates_t* add_coordinates(int x, int y){
+    coordinates_t* res = malloc(sizeof(coordinates_t));
+    res -> x = x;
+    res -> y = y;
+    return res;
+}
+/** Getters and setters for coordinates*/
+int get_coordinates_x(coordinates_t* coordinates){
+    return coordinates -> x;
+}
+int get_coordinates_y(coordinates_t* coordinates){
+    return coordinates -> y;
+}
 /** Player implementation */
 struct player {
     char symbol;
     int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
     int square_owned;
+    coordinates_t** square_list;
 };
-
 
 /** Create a player whose symbol is taken in parameter*/
 player_t* add_player(char symbol, int ai_type){
@@ -31,6 +55,7 @@ player_t* add_player(char symbol, int ai_type){
     res -> symbol = symbol;
     res -> ai_type = ai_type;
     res -> square_owned = 1;
+    res -> square_list = malloc((BOARD_SIZE * BOARD_SIZE)/2 * sizeof(coordinates_t));
     return res;
 }
 
@@ -51,6 +76,16 @@ void set_player_square_owned(player_t* player,  int square_number)
 {
     player->square_owned = square_number;
 }
+coordinates_t* get_player_square_list(player_t* player, int i)
+{
+    return player -> square_list[i];
+}
+void add_player_square_list(player_t* player, coordinates_t* coordinates){
+    if (get_player_square_owned(player) >= (BOARD_SIZE * BOARD_SIZE)/2 - 1) {
+        player -> square_list = realloc(player -> square_list, 10 * sizeof(coordinates_t));
+    }
+    player -> square_list[get_player_square_owned(player) - 1] = coordinates;
+}
 
 
 /** List of players*/
@@ -64,11 +99,6 @@ player_t* get_player(int i) {
 void set_player(int i, player_t* player){
     player_list[i] = player;
 }
-/* We want a 30x30 board game by default */
-#define BOARD_SIZE 30
-/* SPOT for the number of colors */
-#define NB_COLORS 7
-
 /** Represent the actual current board game */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
@@ -171,7 +201,9 @@ void init_board() {
         }
     }
     set_cell(0, BOARD_SIZE-1, get_player_symbol(get_player(0)));
+    add_player_square_list(get_player(0), add_coordinates(0, BOARD_SIZE-1));
     set_cell(BOARD_SIZE -1, 0, get_player_symbol(get_player(1)));
+    add_player_square_list(get_player(1), add_coordinates(BOARD_SIZE - 1, 0));
 }
 
 /** Update the board */
@@ -181,6 +213,7 @@ void update_board(char letter, player_t* player){
         for (int j = 0; j < BOARD_SIZE; j++) {
             if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i,  get_player_symbol(player))) {
                 set_cell(j, i, get_player_symbol(player));
+                add_player_square_list(player, add_coordinates(j, i));
                 modifications += 1;
             }
         }
@@ -188,6 +221,52 @@ void update_board(char letter, player_t* player){
     if(modifications != 0) {
         set_player_square_owned(player, get_player_square_owned(player) + modifications);
         update_board(letter, player);
+    }
+}
+
+/** Upgraded version of upgrade_board*/
+void update_boardV2(char letter, player_t* player){
+    int modifications = 0;
+    for(int i = 0; i < get_player_square_owned(player); i++) {
+        coordinates_t* cell = get_player_square_list(player, i);
+        int x = get_coordinates_x(cell);
+        int y = get_coordinates_y(cell);
+        if (y != 0){
+            if (get_cell(x, y-1)== letter) {
+                set_cell(x, y-1, get_player_symbol(player));
+                set_player_square_owned(player, get_player_square_owned(player) + 1);
+                add_player_square_list(player, add_coordinates(x, y-1));
+                modifications += 1;
+            }
+        }
+        if (x != BOARD_SIZE - 1) {
+            if (get_cell(x+1, y) == letter) {
+                set_cell(x+1, y, get_player_symbol(player));
+                set_player_square_owned(player, get_player_square_owned(player) + 1);
+                add_player_square_list(player, add_coordinates(x+1, y));
+                modifications += 1;
+            }
+        }
+        if (y != BOARD_SIZE - 1) {
+            if (get_cell(x, y+1) == letter) {
+                set_cell(x, y+1, get_player_symbol(player));
+                set_player_square_owned(player, get_player_square_owned(player) + 1);
+                add_player_square_list(player, add_coordinates(x, y+1));
+                modifications += 1;
+            }
+        }
+        if (x != 0) {
+            if (get_cell(x-1, y) == letter) {
+                set_cell(x-1, y, get_player_symbol(player));
+                set_player_square_owned(player, get_player_square_owned(player) + 1);
+                add_player_square_list(player, add_coordinates(x-1, y));
+                modifications += 1;
+            }
+        }
+        
+    }
+    if(modifications != 0) {
+        update_boardV2(letter, player);
     }
 }
 
@@ -227,8 +306,7 @@ void game_turn(player_t* player){
         letter = ai_move(player);
         printf("AI played letter %c\n", letter);
     }
-
-    update_board(letter, player);
+    update_boardV2(letter, player);
     print_board();
     for (int i = 0; i<2; i++) {
         printf("Score Player %c = %d , %.2f %% \n", get_player_symbol(get_player(i)), get_player_square_owned(get_player(i)), (float) get_player_square_owned(player_list[i]) / (BOARD_SIZE * BOARD_SIZE));
