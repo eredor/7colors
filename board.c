@@ -24,6 +24,7 @@ struct player {
     int square_owned;
 };
 
+
 /** Create a player whose symbol is taken in parameter*/
 player_t* add_player(char symbol, int ai_type){
     player_t* res = malloc(sizeof(player_t));
@@ -38,7 +39,7 @@ char get_player_symbol(player_t* player)
 {
     return player->symbol;
 }
-char get_player_square_owned(player_t* player)
+int get_player_square_owned(player_t* player)
 {
     return player->square_owned;
 }

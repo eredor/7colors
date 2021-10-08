@@ -4,9 +4,9 @@
 
 #IncludeRegexComplain: ^$
 
-#IncludeRegexTransform: 
+#IncludeRegexTransform:
 
-/home/kaznad/7colors/board.c
+/home/asus/7colors/7colors/board.c
 stdio.h
 -
 board.h
@@ -16,7 +16,7 @@ simple_unit_test.h
 time.h
 -
 
-/home/kaznad/7colors/board.h
+/home/asus/7colors/7colors/board.h
 
 /home/kaznad/7colors/simple_unit_test.h
 simple_unit_test.h
@@ -29,4 +29,3 @@ unistd.h
 -
 string.h
 -
-
