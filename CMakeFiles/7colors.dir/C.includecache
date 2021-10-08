@@ -7,8 +7,6 @@
 #IncludeRegexTransform: 
 
 /home/asus/7colors/7colors/board.c
-stdint.h
--
 stdio.h
 -
 board.h
@@ -19,8 +17,6 @@ time.h
 -
 
 /home/asus/7colors/7colors/board.h
-stdint.h
--
 
 /home/asus/7colors/7colors/main.c
 stdio.h

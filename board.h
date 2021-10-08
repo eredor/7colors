@@ -17,7 +17,7 @@ player_t* add_player(char symbol);
 
 /** Getters and setters for player*/
 char get_player_symbol(player_t* player);
-char get_player_square_owned(player_t* player);
+int get_player_square_owned(player_t* player);
 void set_player_square_owned(player_t* player, int square_number);
 
 /** Getter and setter for the list*/
