@@ -6,7 +6,7 @@
 /** Program entry point */
 int main(void)
 {
-    // Initialiaze the game 
+    // Initialiaze the game
     init_game();
     printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 	   "*****************************************************\n\n"

@@ -13,11 +13,12 @@ void init_board2(void);
 typedef struct player player_t;
 
 /** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol);
+player_t* add_player(char symbol, int ai_type);
 
 /** Getters and setters for player*/
 char get_player_symbol(player_t* player);
 char get_player_square_owned(player_t* player);
+int get_player_ai_type(player_t* player);
 void set_player_square_owned(player_t* player, int square_number);
 
 /** Getter and setter for the list*/
@@ -37,7 +38,14 @@ void set_cell(int x, int y, char color);
  */
 void print_board(void);
 
-/** Initialize the game 
+/** Alea chooses a random letter to play */
+char alea_strategy(void);
+
+/** Returns the move of an ai player */
+char ai_move(player_t* player);
+
+
+/** Initialize the game
  * Ask each player for a symbol
  * Initialize the board
 */

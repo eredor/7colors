@@ -20,14 +20,16 @@
 /** Player implementation */
 struct player {
     char symbol;
+    int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
     int square_owned;
 };
 
 /** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol){
+player_t* add_player(char symbol, int ai_type){
     player_t* res = malloc(sizeof(player_t));
     res -> symbol = symbol;
-    res -> square_owned = 125;
+    res -> ai_type = ai_type;
+    res -> square_owned = 1;
     return res;
 }
 
@@ -40,10 +42,15 @@ char get_player_square_owned(player_t* player)
 {
     return player->square_owned;
 }
+int get_player_ai_type(player_t* player)
+{
+    return player -> ai_type;
+}
 void set_player_square_owned(player_t* player,  int square_number)
 {
     player->square_owned = square_number;
 }
+
 
 /** List of players*/
 player_t* player_list[2];
@@ -58,6 +65,8 @@ void set_player(int i, player_t* player){
 }
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
+/* SPOT for the number of colors */
+#define NB_COLORS 7
 
 /** Represent the actual current board game */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
@@ -69,12 +78,12 @@ void init_board2(void)
         for (int j = 0; j < BOARD_SIZE; j++) {
             int case_idx = BOARD_SIZE * i + j;
             srand(time(NULL) + case_idx); // initialize random seed
-            board[case_idx] = (rand() % 7) + 'A';
-      }
-  }
-  // Initilization of both players' positions
-  board[BOARD_SIZE - 1] = '^';
-  board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
+            board[case_idx] = (rand() % NB_COLORS) + 'A';
+        }
+    }
+    // Initilization of both players' positions
+    board[BOARD_SIZE - 1] = '^';
+    board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
 }
 
 /** Retrieves the color of a given board cell */
@@ -105,17 +114,49 @@ void print_board(void)
     }
 }
 
-/** Initialize the game 
+/** Functions for AI strategies */
+
+/** Alea chooses a random letter to play */
+char alea_strategy(void)
+{
+    srand(time(NULL));
+    return 'A' + (rand() % NB_COLORS);
+}
+
+/* WORK IN PROGRESS
+char better_alea_strategy(player_t* player)
+{
+
+}
+*/
+
+/** Returns the move of an ai player */
+char ai_move(player_t* player)
+{
+    switch (get_player_ai_type(player)) {
+        case 1: return alea_strategy(); break;
+        default: return 'A'; break;
+        // other cases will be added for future AIs
+    }
+}
+
+
+/** Initialize the game
  * Ask each player for a symbol
  * Initialize the board
 */
 void init_game(){
     char symbol, c;
+    int ai_type;
     for (int i = 0; i<2; i++) {
+        printf("Player %d what type of AI are you ? \n", i + 1);
+        scanf("%d", &ai_type);
+        while ((c = getchar()) != '\n' && c != EOF) {}
         printf("Player %d enter a symbol \n", i + 1);
         scanf("%c", &symbol);
         while ((c = getchar()) != '\n' && c != EOF) {}
-        set_player(i, add_player(symbol));
+
+        set_player(i, add_player(symbol, ai_type));
     }
     init_board();
 }
@@ -125,7 +166,7 @@ void init_board() {
     srand(time(NULL)); // initialize random seed
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            set_cell(j, i, ((rand() % 7) + 'A'));
+            set_cell(j, i, ((rand() % NB_COLORS) + 'A'));
         }
     }
     set_cell(0, BOARD_SIZE-1, get_player_symbol(get_player(0)));
@@ -177,9 +218,15 @@ int is_player_neighbour(int x, int y, char player) {
 /** Main loop*/
 void game_turn(player_t* player){
     char letter, c;
-    printf("Player %c enter a letter\n", get_player_symbol(player));
-    scanf("%c", &letter);
-    while ((c = getchar()) != '\n' && c != EOF) {}
+    if (get_player_ai_type(player) == 0) {
+        printf("Player %c enter a letter\n", get_player_symbol(player));
+        scanf("%c", &letter);
+        while ((c = getchar()) != '\n' && c != EOF) {}
+    } else {
+        letter = ai_move(player);
+        printf("AI played letter %c\n", letter);
+    }
+
     update_board(letter, player);
     print_board();
     for (int i = 0; i<2; i++) {
