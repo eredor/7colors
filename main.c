@@ -7,15 +7,15 @@
 int main(void)
 {
     // Initialiaze the game 
-    init_board();
+    init_game();
     printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
     print_board();
 
     int turn = 0;
-    while(get_game_statuts() == 0){
-       (turn % 2 == 0) ? game_turn(get_player_one()) : game_turn(get_player_two());
+    while(end_game()){
+       game_turn(get_player(turn % 2));
        turn++;
     }
 

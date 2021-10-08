@@ -4,8 +4,8 @@
 #include <stdio.h>   /* Import printf */
 #include "board.h"   /* Enforce that the header file matches the declarations */
 #include "simple_unit_test.h" /* Import the testing infrastructure */
-
 #include <time.h> /* Import time to initialize random seed */
+
 
 /* Note: This template comes with several global definitions. For now.
  *
@@ -17,30 +17,45 @@
  * Plus, this path often leads to simpler code, that is easier to test.
  */
 
-/* Players data */
-static char player_one = '^';
-static int player_one_owned = 1;
-char get_player_one()
-{
-    return player_one;
-}
-static char player_two = 'v';
-static int player_two_owned = 1;
-char get_player_two()
-{
-    return player_two;
-}
+/** Player implementation */
+struct player {
+    char symbol;
+    int square_owned;
+};
 
-/** Game Statut
- * 0 when the game is on
- * X when player X won */
-static int game_status = 0;
-
-int get_game_statuts()
-{
-    return game_status;
+/** Create a player whose symbol is taken in parameter*/
+player_t* add_player(char symbol){
+    player_t* res = malloc(sizeof(player_t));
+    res -> symbol = symbol;
+    res -> square_owned = 125;
+    return res;
 }
 
+/** Getters and setters for player*/
+char get_player_symbol(player_t* player)
+{
+    return player->symbol;
+}
+char get_player_square_owned(player_t* player)
+{
+    return player->square_owned;
+}
+void set_player_square_owned(player_t* player,  int square_number)
+{
+    player->square_owned = square_number;
+}
+
+/** List of players*/
+player_t* player_list[2];
+
+/** Getter and setter for the list*/
+player_t* get_player(int i) {
+    return player_list[i];
+}
+
+void set_player(int i, player_t* player){
+    player_list[i] = player;
+}
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
 
@@ -84,10 +99,25 @@ void print_board(void)
     int i, j;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c ", get_cell(i, j));
+            printf("%c  ", get_cell(i, j));
         }
         printf("\n");
     }
+}
+
+/** Initialize the game 
+ * Ask each player for a symbol
+ * Initialize the board
+*/
+void init_game(){
+    char symbol, c;
+    for (int i = 0; i<2; i++) {
+        printf("Player %d enter a symbol \n", i + 1);
+        scanf("%c", &symbol);
+        while ((c = getchar()) != '\n' && c != EOF) {}
+        set_player(i, add_player(symbol));
+    }
+    init_board();
 }
 
 /** Initialize the board */
@@ -98,28 +128,23 @@ void init_board() {
             set_cell(j, i, ((rand() % 7) + 'A'));
         }
     }
-    set_cell(BOARD_SIZE -1, 0, get_player_two());
-    set_cell(0, BOARD_SIZE-1, get_player_one());
+    set_cell(0, BOARD_SIZE-1, get_player_symbol(get_player(0)));
+    set_cell(BOARD_SIZE -1, 0, get_player_symbol(get_player(1)));
 }
 
 /** Update the board */
-void update_board(char letter, char player){
+void update_board(char letter, player_t* player){
     int modifications = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i, player)) {
-                set_cell(j, i, player);
+            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i,  get_player_symbol(player))) {
+                set_cell(j, i, get_player_symbol(player));
                 modifications += 1;
             }
         }
     }
     if(modifications != 0) {
-        if(player == player_one) {
-            player_one_owned += modifications;
-        }
-        else {
-            player_two_owned += modifications;
-        }
+        set_player_square_owned(player, get_player_square_owned(player) + modifications);
         update_board(letter, player);
     }
 }
@@ -150,26 +175,26 @@ int is_player_neighbour(int x, int y, char player) {
 }
 
 /** Main loop*/
-void game_turn(char player){
+void game_turn(player_t* player){
     char letter, c;
-    printf("Player %c enter a letter\n", player);
+    printf("Player %c enter a letter\n", get_player_symbol(player));
     scanf("%c", &letter);
     while ((c = getchar()) != '\n' && c != EOF) {}
     update_board(letter, player);
     print_board();
-    printf("Score Player %c = %d , %.2f %% \n", get_player_one(), player_one_owned, (float) player_one_owned / (BOARD_SIZE * BOARD_SIZE));
-    printf("Score Player %c = %d , %.2f %% \n", get_player_two(), player_two_owned, (float) player_two_owned / (BOARD_SIZE * BOARD_SIZE));
-    end_game();
+    for (int i = 0; i<2; i++) {
+        printf("Score Player %c = %d , %.2f %% \n", get_player_symbol(get_player(i)), get_player_square_owned(get_player(i)), (float) get_player_square_owned(player_list[i]) / (BOARD_SIZE * BOARD_SIZE));
+    }
 }
 
-/** Update game_status*/
-void end_game() {
-    if (player_one_owned * 2 > BOARD_SIZE * BOARD_SIZE) {
-        game_status = 1;
+/** Check if the game should end */
+int end_game() {
+    for (int i = 0; i<2; i++) {
+        if (get_player_square_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
+            return 0;
+        }
     }
-    else if (player_two_owned * 2 > BOARD_SIZE * BOARD_SIZE){
-        game_status = 2;
-    }
+    return 1;
 }
 
 

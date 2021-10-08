@@ -9,9 +9,20 @@
 /** Initializes the board randomly */
 void init_board2(void);
 
-int get_game_statuts();
-char get_player_one();
-char get_player_two();
+/** Player implementation */
+typedef struct player player_t;
+
+/** Create a player whose symbol is taken in parameter*/
+player_t* add_player(char symbol);
+
+/** Getters and setters for player*/
+char get_player_symbol(player_t* player);
+char get_player_square_owned(player_t* player);
+void set_player_square_owned(player_t* player, int square_number);
+
+/** Getter and setter for the list*/
+player_t* get_player(int i);
+void set_player(int i, player_t* player);
 
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y);
@@ -26,19 +37,25 @@ void set_cell(int x, int y, char color);
  */
 void print_board(void);
 
+/** Initialize the game 
+ * Ask each player for a symbol
+ * Initialize the board
+*/
+void init_game();
+
 /** Initialize the board */
 void init_board();
 
 /** Update the board */
-void update_board(char letter, char player);
+void update_board(char letter, player_t* player);
 
 /** Return 1 if the given cell has a neighbouring cell owned by the given player*/
 int is_player_neighbour(int x, int y, char player);
 
 /** Main loop */
-void game_turn(char player);
+void game_turn(player_t* player);
 
-/** Update game_status*/
-void end_game();
+/** Check if the game should end*/
+int  end_game();
 
 #endif
