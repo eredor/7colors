@@ -12,8 +12,12 @@ int main(void)
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
     print_board();
-    printf("Score Player 1 = %d \n", 1);
-    printf("Score Player 2 = %d \n", 1);
+
+    int turn = 0;
+    while(get_game_statuts() == 0){
+       (turn % 2 == 0) ? game_turn(get_player_one()) : game_turn(get_player_two());
+       turn++;
+    }
 
 
     return 0; // Everything went well

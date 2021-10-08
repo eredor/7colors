@@ -18,15 +18,28 @@
  */
 
 /* Players data */
-static char player_one = 'v';
+static char player_one = '^';
 static int player_one_owned = 1;
-static char player_two = '^';
+char get_player_one()
+{
+    return player_one;
+}
+static char player_two = 'v';
 static int player_two_owned = 1;
+char get_player_two()
+{
+    return player_two;
+}
 
 /** Game Statut
  * 0 when the game is on
  * X when player X won */
 static int game_status = 0;
+
+int get_game_statuts()
+{
+    return game_status;
+}
 
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
@@ -35,7 +48,7 @@ static int game_status = 0;
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
 /** Initializes the board randomly */
-void init_board(void)
+void init_board2(void)
 {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -71,7 +84,7 @@ void print_board(void)
     int i, j;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c", get_cell(i, j));
+            printf("%c ", get_cell(i, j));
         }
         printf("\n");
     }
@@ -85,8 +98,8 @@ void init_board() {
             set_cell(j, i, ((rand() % 7) + 'A'));
         }
     }
-    set_cell(BOARD_SIZE -1, 0, player_one);
-    set_cell(0, BOARD_SIZE-1, player_two);
+    set_cell(BOARD_SIZE -1, 0, get_player_two());
+    set_cell(0, BOARD_SIZE-1, get_player_one());
 }
 
 /** Update the board */
@@ -118,12 +131,12 @@ int is_player_neighbour(int x, int y, char player) {
             return 1;
         }
     }
-    if (x != BOARD_SIZE) {
+    if (x != BOARD_SIZE - 1) {
         if (get_cell(x+1, y) == player) {
             return 1;
         }
     }
-    if (y != BOARD_SIZE) {
+    if (y != BOARD_SIZE - 1) {
         if (get_cell(x, y+1) == player) {
             return 1;
         }
@@ -139,19 +152,22 @@ int is_player_neighbour(int x, int y, char player) {
 /** Main loop*/
 void game_turn(char player){
     char letter, c;
-    printf("Enter a letter\n");
+    printf("Player %c enter a letter\n", player);
     scanf("%c", &letter);
     while ((c = getchar()) != '\n' && c != EOF) {}
     update_board(letter, player);
+    print_board();
+    printf("Score Player %c = %d , %.2f %% \n", get_player_one(), player_one_owned, (float) player_one_owned / (BOARD_SIZE * BOARD_SIZE));
+    printf("Score Player %c = %d , %.2f %% \n", get_player_two(), player_two_owned, (float) player_two_owned / (BOARD_SIZE * BOARD_SIZE));
     end_game();
 }
 
 /** Update game_status*/
 void end_game() {
-    if (player_one_owned * 2 > BOARD_SIZE) {
+    if (player_one_owned * 2 > BOARD_SIZE * BOARD_SIZE) {
         game_status = 1;
     }
-    else if (player_two_owned * 2 > BOARD_SIZE){
+    else if (player_two_owned * 2 > BOARD_SIZE * BOARD_SIZE){
         game_status = 2;
     }
 }

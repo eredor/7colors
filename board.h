@@ -7,7 +7,11 @@
 /* Note: feel free to modify this API if you need it to clean your code */
 
 /** Initializes the board randomly */
-void init_board(void);
+void init_board2(void);
+
+int get_game_statuts();
+char get_player_one();
+char get_player_two();
 
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y);
