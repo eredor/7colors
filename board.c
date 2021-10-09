@@ -5,6 +5,7 @@
 #include "board.h"   /* Enforce that the header file matches the declarations */
 #include "simple_unit_test.h" /* Import the testing infrastructure */
 #include <time.h> /* Import time to initialize random seed */
+#include "chained_lists.h" /* Use of chained lists */
 
 
 /* Note: This template comes with several global definitions. For now.
@@ -21,26 +22,8 @@
 #define BOARD_SIZE 30
 /* SPOT for the number of colors */
 #define NB_COLORS 7
-/** Coordinates implementation */
-struct coordinates {
-    int x;
-    int y;
-};
 
-/** Create a coordinates element*/
-coordinates_t* add_coordinates(int x, int y){
-    coordinates_t* res = malloc(sizeof(coordinates_t));
-    res -> x = x;
-    res -> y = y;
-    return res;
-}
-/** Getters and setters for coordinates*/
-int get_coordinates_x(coordinates_t* coordinates){
-    return coordinates -> x;
-}
-int get_coordinates_y(coordinates_t* coordinates){
-    return coordinates -> y;
-}
+
 /** Player implementation */
 struct player {
     char symbol;
@@ -154,12 +137,12 @@ char alea_strategy(void)
     return 'A' + (rand() % NB_COLORS);
 }
 
-/* WORK IN PROGRESS
+
 char better_alea_strategy(player_t* player)
 {
 
 }
-*/
+
 
 /** Returns the move of an ai player */
 char ai_move(player_t* player)
@@ -263,14 +246,14 @@ void update_boardV2(char letter, player_t* player){
                 modifications += 1;
             }
         }
-        
+
     }
     if(modifications != 0) {
         update_boardV2(letter, player);
     }
 }
 
-/** Return 1 if the given cell has a neighbouring cell owned by the given player*/
+/** Returns 1 if the given cell has a neighbouring cell owned by the given player*/
 int is_player_neighbour(int x, int y, char player) {
     if (y != 0){
         if (get_cell(x, y-1)== player) {

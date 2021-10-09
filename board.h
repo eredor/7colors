@@ -9,16 +9,6 @@
 /** Initializes the board randomly */
 void init_board2(void);
 
-/** Coordinates implementation */
-typedef struct coordinates coordinates_t;
-
-/** Create a coordinates element*/
-coordinates_t* add_coordinates(int x, int y);
-
-/** Getters and setters for coordinates*/
-int get_coordinates_x(coordinates_t* coordinates);
-int get_coordinates_y(coordinates_t* coordinates);
-
 /** Player implementation */
 typedef struct player player_t;
 
