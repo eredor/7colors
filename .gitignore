@@ -1,6 +1,6 @@
 .vscode/settings.json
-CmakeCache.txt
+CMakeCache.txt
 cmake_install.cmake
-CMakeLists.txt
-CTestfile.cmake
-MakeFile
+CTesTTestfile.cmake
+Makefile
+CMakeFiles
