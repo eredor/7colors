@@ -38,7 +38,7 @@ player_t* add_player(char symbol, int ai_type){
     res -> symbol = symbol;
     res -> ai_type = ai_type;
     res -> square_owned = 1;
-    res -> square_list = malloc((BOARD_SIZE * BOARD_SIZE)/2 * sizeof(coordinates_t));
+    res -> square_list = malloc((BOARD_SIZE * BOARD_SIZE)/2 * sizeof(coordinates_t*));
     return res;
 }
 
@@ -65,7 +65,7 @@ coordinates_t* get_player_square_list(player_t* player, int i)
 }
 void add_player_square_list(player_t* player, coordinates_t* coordinates){
     if (get_player_square_owned(player) >= (BOARD_SIZE * BOARD_SIZE)/2 - 1) {
-        player -> square_list = realloc(player -> square_list, 10 * sizeof(coordinates_t));
+        player -> square_list = realloc(player -> square_list, 10 * sizeof(coordinates_t*));
     }
     player -> square_list[get_player_square_owned(player) - 1] = coordinates;
 }
@@ -137,12 +137,12 @@ char alea_strategy(void)
     return 'A' + (rand() % NB_COLORS);
 }
 
-
+/* WORK IN PROGRESS
 char better_alea_strategy(player_t* player)
 {
 
 }
-
+*/
 
 /** Returns the move of an ai player */
 char ai_move(player_t* player)

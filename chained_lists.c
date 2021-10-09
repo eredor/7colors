@@ -42,8 +42,8 @@ struct chained_list {
 };
 
 /** Create a chained list / an element */
-liste_t* create_list(coordinates_t* coord) {
-    liste_t* list = malloc(sizeof(liste_t*));
+list_t* create_list(coordinates_t* coord) {
+    list_t* list = malloc(sizeof(list_t*));
     element_t* elt = malloc(sizeof(element_t*));
 
     elt->next = NULL;
@@ -77,21 +77,21 @@ void set_value(element_t* elt, coordinates_t* value) {
     elt -> coord = value;
 }
 
-element_t* get_first_elt(liste_t* list) {
+element_t* get_first_elt(list_t* list) {
     return list -> first;
 }
-void set_first_elt(liste_t* list, element_t* elt) {
+void set_first_elt(list_t* list, element_t* elt) {
     list -> first = elt;
 }
 
 /** Functions related to lists */
-void ajoute_elt(liste_t* list, element_t* elt) {
+void ajoute_elt(list_t* list, element_t* elt) {
     element_t* first = get_first_elt(list);
     set_next_elt(elt, first);
     set_first_elt(list, elt);
 }
 
-element_t* del_first_elt(liste_t* list) {
+element_t* del_first_elt(list_t* list) {
     element_t* elt = get_first_elt(list);
     if (elt != NULL) {
         element_t* next = get_next_elt(elt);

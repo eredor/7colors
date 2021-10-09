@@ -23,7 +23,7 @@ typedef struct element element_t;
 typedef struct chained_list list_t;
 
 /** Create a chained list / an element */
-liste_t* create_list(coordinates_t* coord);
+list_t* create_list(coordinates_t* coord);
 
 element_t* create_element(coordinates_t* coord);
 
@@ -39,15 +39,15 @@ coordinates_t* get_value(element_t* elt);
 void set_value(element_t* elt, coordinates_t* value);
 
 // For lists
-element_t* get_first_elt(liste_t* list);
+element_t* get_first_elt(list_t* list);
 
-void set_first_elt(liste_t* list, element_t* elt);
+void set_first_elt(list_t* list, element_t* elt);
 
 
 /** Functions related to lists */
-void ajoute_elt(liste_t* list, element_t* elt);
+void ajoute_elt(list_t* list, element_t* elt);
 
-element_t* del_first_elt(liste_t* list);
+element_t* del_first_elt(list_t* list);
 
 
 #endif
