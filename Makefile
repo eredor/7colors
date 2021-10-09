@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/asus/7colors/7colors
+CMAKE_SOURCE_DIR = /home/kaznad/7colors
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/asus/7colors/7colors
+CMAKE_BINARY_DIR = /home/kaznad/7colors
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -91,9 +91,9 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/asus/7colors/7colors/CMakeFiles /home/asus/7colors/7colors/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kaznad/7colors/CMakeFiles /home/kaznad/7colors/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/asus/7colors/7colors/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kaznad/7colors/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -177,6 +177,36 @@ board.c.s:
 	$(MAKE) -f CMakeFiles/7colors.dir/build.make CMakeFiles/7colors.dir/board.c.s
 .PHONY : board.c.s
 
+chained_lists.o: chained_lists.c.o
+
+.PHONY : chained_lists.o
+
+# target to build an object file
+chained_lists.c.o:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/chained_lists.c.o
+	$(MAKE) -f CMakeFiles/7colors.dir/build.make CMakeFiles/7colors.dir/chained_lists.c.o
+.PHONY : chained_lists.c.o
+
+chained_lists.i: chained_lists.c.i
+
+.PHONY : chained_lists.i
+
+# target to preprocess a source file
+chained_lists.c.i:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/chained_lists.c.i
+	$(MAKE) -f CMakeFiles/7colors.dir/build.make CMakeFiles/7colors.dir/chained_lists.c.i
+.PHONY : chained_lists.c.i
+
+chained_lists.s: chained_lists.c.s
+
+.PHONY : chained_lists.s
+
+# target to generate assembly for a file
+chained_lists.c.s:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/chained_lists.c.s
+	$(MAKE) -f CMakeFiles/7colors.dir/build.make CMakeFiles/7colors.dir/chained_lists.c.s
+.PHONY : chained_lists.c.s
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -245,6 +275,9 @@ help:
 	@echo "... board.o"
 	@echo "... board.i"
 	@echo "... board.s"
+	@echo "... chained_lists.o"
+	@echo "... chained_lists.i"
+	@echo "... chained_lists.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

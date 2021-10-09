@@ -15,12 +15,14 @@ void init_board2(void);
 typedef struct player player_t;
 
 /** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol, int ai_type);
+player_t* add_player(char symbol, int ai_type, int x_init, int y_init);
 
 /** Getters and setters for player*/
 char get_player_symbol(player_t* player);
 int get_player_square_owned(player_t* player);
 int get_player_ai_type(player_t* player);
+int get_player_init_x(player_t* player);
+int get_player_init_y(player_t* player);
 void set_player_square_owned(player_t* player, int square_number);
 coordinates_t* get_player_square_list(player_t* player, int i);
 void add_player_square_list(player_t* player, coordinates_t* coordinates);
@@ -57,6 +59,12 @@ void init_game();
 
 /** Initialize the board */
 void init_board();
+
+/** Propagates recursively a color over another */
+int propagate(char color_covering, int x, int y, char color_covered);
+
+/** Version 3 of update_board */
+void update_boardV3(char letter, player_t* player);
 
 /** Upgraded version of upgrade_board*/
 void update_boardV2(char letter, player_t* player);

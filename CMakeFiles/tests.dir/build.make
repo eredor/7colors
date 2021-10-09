@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/asus/7colors/7colors
+CMAKE_SOURCE_DIR = /home/kaznad/7colors
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/asus/7colors/7colors
+CMAKE_BINARY_DIR = /home/kaznad/7colors
 
 # Include any dependencies generated for this target.
 include CMakeFiles/tests.dir/depend.make
@@ -59,43 +59,58 @@ include CMakeFiles/tests.dir/flags.make
 
 CMakeFiles/tests.dir/tests.c.o: CMakeFiles/tests.dir/flags.make
 CMakeFiles/tests.dir/tests.c.o: tests.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/asus/7colors/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/tests.dir/tests.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/tests.dir/tests.c.o   -c /home/asus/7colors/7colors/tests.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kaznad/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/tests.dir/tests.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/tests.dir/tests.c.o   -c /home/kaznad/7colors/tests.c
 
 CMakeFiles/tests.dir/tests.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tests.dir/tests.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asus/7colors/7colors/tests.c > CMakeFiles/tests.dir/tests.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/kaznad/7colors/tests.c > CMakeFiles/tests.dir/tests.c.i
 
 CMakeFiles/tests.dir/tests.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tests.dir/tests.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asus/7colors/7colors/tests.c -o CMakeFiles/tests.dir/tests.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/kaznad/7colors/tests.c -o CMakeFiles/tests.dir/tests.c.s
 
 CMakeFiles/tests.dir/board.c.o: CMakeFiles/tests.dir/flags.make
 CMakeFiles/tests.dir/board.c.o: board.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/asus/7colors/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/tests.dir/board.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/tests.dir/board.c.o   -c /home/asus/7colors/7colors/board.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kaznad/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/tests.dir/board.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/tests.dir/board.c.o   -c /home/kaznad/7colors/board.c
 
 CMakeFiles/tests.dir/board.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tests.dir/board.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asus/7colors/7colors/board.c > CMakeFiles/tests.dir/board.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/kaznad/7colors/board.c > CMakeFiles/tests.dir/board.c.i
 
 CMakeFiles/tests.dir/board.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tests.dir/board.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asus/7colors/7colors/board.c -o CMakeFiles/tests.dir/board.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/kaznad/7colors/board.c -o CMakeFiles/tests.dir/board.c.s
+
+CMakeFiles/tests.dir/chained_lists.c.o: CMakeFiles/tests.dir/flags.make
+CMakeFiles/tests.dir/chained_lists.c.o: chained_lists.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kaznad/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/tests.dir/chained_lists.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/tests.dir/chained_lists.c.o   -c /home/kaznad/7colors/chained_lists.c
+
+CMakeFiles/tests.dir/chained_lists.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/tests.dir/chained_lists.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/kaznad/7colors/chained_lists.c > CMakeFiles/tests.dir/chained_lists.c.i
+
+CMakeFiles/tests.dir/chained_lists.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/tests.dir/chained_lists.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/kaznad/7colors/chained_lists.c -o CMakeFiles/tests.dir/chained_lists.c.s
 
 # Object files for target tests
 tests_OBJECTS = \
 "CMakeFiles/tests.dir/tests.c.o" \
-"CMakeFiles/tests.dir/board.c.o"
+"CMakeFiles/tests.dir/board.c.o" \
+"CMakeFiles/tests.dir/chained_lists.c.o"
 
 # External object files for target tests
 tests_EXTERNAL_OBJECTS =
 
 tests: CMakeFiles/tests.dir/tests.c.o
 tests: CMakeFiles/tests.dir/board.c.o
+tests: CMakeFiles/tests.dir/chained_lists.c.o
 tests: CMakeFiles/tests.dir/build.make
 tests: CMakeFiles/tests.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/asus/7colors/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/kaznad/7colors/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking C executable tests"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tests.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -108,6 +123,6 @@ CMakeFiles/tests.dir/clean:
 .PHONY : CMakeFiles/tests.dir/clean
 
 CMakeFiles/tests.dir/depend:
-	cd /home/asus/7colors/7colors && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/asus/7colors/7colors /home/asus/7colors/7colors /home/asus/7colors/7colors /home/asus/7colors/7colors /home/asus/7colors/7colors/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/kaznad/7colors && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/kaznad/7colors /home/kaznad/7colors /home/kaznad/7colors /home/kaznad/7colors /home/kaznad/7colors/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/tests.dir/depend
 

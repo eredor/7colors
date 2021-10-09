@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/tests.dir/board.c.o"
+  "CMakeFiles/tests.dir/chained_lists.c.o"
   "CMakeFiles/tests.dir/tests.c.o"
   "tests"
   "tests.pdb"

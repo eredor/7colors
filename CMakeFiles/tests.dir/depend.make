@@ -3,7 +3,11 @@
 
 CMakeFiles/tests.dir/board.c.o: board.c
 CMakeFiles/tests.dir/board.c.o: board.h
+CMakeFiles/tests.dir/board.c.o: chained_lists.h
 CMakeFiles/tests.dir/board.c.o: simple_unit_test.h
+
+CMakeFiles/tests.dir/chained_lists.c.o: chained_lists.c
+CMakeFiles/tests.dir/chained_lists.c.o: chained_lists.h
 
 CMakeFiles/tests.dir/tests.c.o: simple_unit_test.h
 CMakeFiles/tests.dir/tests.c.o: tests.c

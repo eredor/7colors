@@ -19,7 +19,7 @@
  */
 
 /* We want a 30x30 board game by default */
-#define BOARD_SIZE 30
+#define BOARD_SIZE 7
 /* SPOT for the number of colors */
 #define NB_COLORS 7
 
@@ -28,15 +28,19 @@
 struct player {
     char symbol;
     int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
+    int x_init;
+    int y_init;
     int square_owned;
     coordinates_t** square_list;
 };
 
 /** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol, int ai_type){
+player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
     player_t* res = malloc(sizeof(player_t));
     res -> symbol = symbol;
     res -> ai_type = ai_type;
+    res -> x_init = x_init;
+    res -> y_init = y_init;
     res -> square_owned = 1;
     res -> square_list = malloc((BOARD_SIZE * BOARD_SIZE)/2 * sizeof(coordinates_t*));
     return res;
@@ -54,6 +58,12 @@ int get_player_square_owned(player_t* player)
 int get_player_ai_type(player_t* player)
 {
     return player -> ai_type;
+}
+int get_player_init_x(player_t* player) {
+    return player -> x_init;
+}
+int get_player_init_y(player_t* player) {
+    return player -> y_init;
 }
 void set_player_square_owned(player_t* player,  int square_number)
 {
@@ -163,6 +173,9 @@ void init_game(){
     char symbol, c;
     int ai_type;
     for (int i = 0; i<2; i++) {
+        int x_init = i * (BOARD_SIZE - 1);
+        int y_init = (1 - i) * (BOARD_SIZE - 1);
+
         printf("Player %d what type of AI are you ? \n", i + 1);
         scanf("%d", &ai_type);
         while ((c = getchar()) != '\n' && c != EOF) {}
@@ -170,7 +183,7 @@ void init_game(){
         scanf("%c", &symbol);
         while ((c = getchar()) != '\n' && c != EOF) {}
 
-        set_player(i, add_player(symbol, ai_type));
+        set_player(i, add_player(symbol, ai_type, x_init, y_init));
     }
     init_board();
 }
@@ -190,6 +203,39 @@ void init_board() {
 }
 
 /** Update the board */
+
+// Propagate recursively a color from a square over another color
+int propagate(char color_covering, int x, int y, char color_covered) {
+    set_cell(x, y, color_covering);
+    int modifs = 1;
+    if ((x < BOARD_SIZE - 1) && (get_cell(x + 1, y) == color_covered)) {
+        modifs += (propagate(color_covering, x + 1, y, color_covered));
+    }
+    if ((x > 1) && (get_cell(x - 1, y) == color_covered)) {
+        modifs += (propagate(color_covering, x - 1, y, color_covered));
+    }
+
+    if ((y < BOARD_SIZE - 1) && (get_cell(x, y + 1) == color_covered)) {
+        modifs += (propagate(color_covering, x, y + 1, color_covered));
+    }
+    if ((y > 1) && (get_cell(x, y - 1) == color_covered)) {
+        modifs += (propagate(color_covering, x, y - 1, color_covered));
+    }
+    return modifs;
+}
+
+void update_boardV3(char letter, player_t* player){
+    char sym = get_player_symbol(player);
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
+
+    propagate(letter, x, y, sym);
+    int modifications = propagate(sym, x, y, letter);
+
+    set_player_square_owned(player, modifications);
+}
+
+
 void update_board(char letter, player_t* player){
     int modifications = 0;
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -289,7 +335,7 @@ void game_turn(player_t* player){
         letter = ai_move(player);
         printf("AI played letter %c\n", letter);
     }
-    update_boardV2(letter, player);
+    update_boardV3(letter, player);
     print_board();
     for (int i = 0; i<2; i++) {
         printf("Score Player %c = %d , %.2f %% \n", get_player_symbol(get_player(i)), get_player_square_owned(get_player(i)), (float) get_player_square_owned(player_list[i]) / (BOARD_SIZE * BOARD_SIZE));
