@@ -50,6 +50,7 @@ void clean_board();
 /** Alea chooses a random letter to play */
 char alea_strategy(player_t* player);
 char glouton_strategy(player_t* player);
+char glouton_strategy2(player_t* player);
 
 /** Returns the move of an ai player */
 char ai_move(player_t* player);

@@ -148,8 +148,6 @@ void print_board_flag(void)
     }
 }
 void clean_board(){
-    print_board_flag();
-    printf("\n");
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             set_cell_flag(i, j, 0);
@@ -166,6 +164,7 @@ char alea_strategy(player_t* player)
     char letter = 'A' + (rand() % NB_COLORS);
     while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
+        clean_board();
     }
     clean_board();
     return letter;
@@ -176,15 +175,16 @@ char glouton_strategy(player_t* player){
     char letter;
     int max = 0;
     int temp;
-    for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
+    for (char i = 'D'; i < 'A' + NB_COLORS; i++) {
         temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+        print_board_flag();
+        printf("\n");
         clean_board();
         printf("Lettre : %c Score : %d \n", i, temp);
         if(temp > max){
             max = temp;
             letter = i;
         }
-        
     }
     printf("Lettre jouee : %c \n", letter);
     return letter;
@@ -296,7 +296,6 @@ void update_board(char letter, player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
 
-    //propagate(letter, x, y, sym);
     int modifications = propagate(sym, x, y, letter);
     clean_board();
 
