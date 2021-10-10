@@ -19,7 +19,7 @@
  */
 
 /* We want a 30x30 board game by default */
-#define BOARD_SIZE 7
+#define BOARD_SIZE 30
 /* SPOT for the number of colors */
 #define NB_COLORS 7
 
@@ -30,8 +30,7 @@ struct player {
     int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
     int x_init;
     int y_init;
-    int square_owned;
-    coordinates_t** square_list;
+    int cell_owned;
 };
 
 /** Create a player whose symbol is taken in parameter*/
@@ -41,8 +40,7 @@ player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
     res -> ai_type = ai_type;
     res -> x_init = x_init;
     res -> y_init = y_init;
-    res -> square_owned = 1;
-    res -> square_list = malloc((BOARD_SIZE * BOARD_SIZE)/2 * sizeof(coordinates_t*));
+    res -> cell_owned = 1;
     return res;
 }
 
@@ -51,9 +49,9 @@ char get_player_symbol(player_t* player)
 {
     return player->symbol;
 }
-int get_player_square_owned(player_t* player)
+int get_player_cell_owned(player_t* player)
 {
-    return player->square_owned;
+    return player->cell_owned;
 }
 int get_player_ai_type(player_t* player)
 {
@@ -65,20 +63,11 @@ int get_player_init_x(player_t* player) {
 int get_player_init_y(player_t* player) {
     return player -> y_init;
 }
-void set_player_square_owned(player_t* player,  int square_number)
+void set_player_cell_owned(player_t* player,  int cell_number)
 {
-    player->square_owned = square_number;
+    player->cell_owned = cell_number;
 }
-coordinates_t* get_player_square_list(player_t* player, int i)
-{
-    return player -> square_list[i];
-}
-void add_player_square_list(player_t* player, coordinates_t* coordinates){
-    if (get_player_square_owned(player) >= (BOARD_SIZE * BOARD_SIZE)/2 - 1) {
-        player -> square_list = realloc(player -> square_list, 10 * sizeof(coordinates_t*));
-    }
-    player -> square_list[get_player_square_owned(player) - 1] = coordinates;
-}
+
 
 
 /** List of players*/
@@ -92,34 +81,43 @@ player_t* get_player(int i) {
 void set_player(int i, player_t* player){
     player_list[i] = player;
 }
-/** Represent the actual current board game */
-char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
-/** Initializes the board randomly */
-void init_board2(void)
-{
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            int case_idx = BOARD_SIZE * i + j;
-            srand(time(NULL) + case_idx); // initialize random seed
-            board[case_idx] = (rand() % NB_COLORS) + 'A';
-        }
-    }
-    // Initilization of both players' positions
-    board[BOARD_SIZE - 1] = '^';
-    board[(BOARD_SIZE - 1) * BOARD_SIZE] = 'v';
+
+struct cell {
+    char symbol;
+    int flag;
+};
+
+/** Represent the actual current board game */
+cell_t* board[BOARD_SIZE * BOARD_SIZE];
+
+/** Create a player whose symbol is taken in parameter*/
+cell_t* create_cell(char symbol){
+    cell_t* res = malloc(sizeof(cell_t));
+    res -> symbol = symbol;
+    res -> flag = 0;
+    return res;
 }
 
 /** Retrieves the color of a given board cell */
-char get_cell(int x, int y)
+char get_cell_color(int x, int y)
 {
-    return board[y * BOARD_SIZE + x];
+    return board[y * BOARD_SIZE + x] -> symbol;
+}
+int get_cell_flag(int x, int y)
+{
+    return board[y * BOARD_SIZE + x] -> flag;
 }
 
 /** Changes the color of a given board cell */
-void set_cell(int x, int y, char color)
+void set_cell_color(int x, int y, char color)
 {
-    board[y * BOARD_SIZE + x] = color;
+    board[y * BOARD_SIZE + x]->symbol = color;
+}
+
+void set_cell_flag(int x, int y, char flag)
+{
+    board[y * BOARD_SIZE + x]->flag = flag;
 }
 
 /** Prints the current state of the board on screen
@@ -132,34 +130,76 @@ void print_board(void)
     int i, j;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c  ", get_cell(i, j));
+            printf("%c  ", get_cell_color(i, j));
         }
         printf("\n");
+    }
+}
+
+ 
+void print_board_flag(void)
+{
+    int i, j;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            printf("%d  ", get_cell_flag(i, j));
+        }
+        printf("\n");
+    }
+}
+void clean_board(){
+    print_board_flag();
+    printf("\n");
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            set_cell_flag(i, j, 0);
+        }
     }
 }
 
 /** Functions for AI strategies */
 
 /** Alea chooses a random letter to play */
-char alea_strategy(void)
+char alea_strategy(player_t* player)
 {
     srand(time(NULL));
-    return 'A' + (rand() % NB_COLORS);
+    char letter = 'A' + (rand() % NB_COLORS);
+    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter) == get_player_cell_owned(player)) {
+        letter = 'A' + (rand() % NB_COLORS);
+    }
+    clean_board();
+    return letter;
 }
 
-/* WORK IN PROGRESS
-char better_alea_strategy(player_t* player)
-{
 
+char glouton_strategy(player_t* player){
+    char letter;
+    int max = 0;
+    int temp;
+    for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+        clean_board();
+        printf("Lettre : %c Score : %d \n", i, temp);
+        if(temp > max){
+            max = temp;
+            letter = i;
+        }
+        
+    }
+    printf("Lettre jouee : %c \n", letter);
+    return letter;
 }
-*/
 
 /** Returns the move of an ai player */
 char ai_move(player_t* player)
 {
     switch (get_player_ai_type(player)) {
-        case 1: return alea_strategy(); break;
-        default: return 'A'; break;
+        case 1: return alea_strategy(player); 
+                break;
+        case 2: return glouton_strategy(player);
+                break;
+        default: return 'A';
+                 break;
         // other cases will be added for future AIs
     }
 }
@@ -193,135 +233,74 @@ void init_board() {
     srand(time(NULL)); // initialize random seed
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            set_cell(j, i, ((rand() % NB_COLORS) + 'A'));
+             board[i * BOARD_SIZE + j] = create_cell((rand() % NB_COLORS) + 'A');
         }
     }
-    set_cell(0, BOARD_SIZE-1, get_player_symbol(get_player(0)));
-    add_player_square_list(get_player(0), add_coordinates(0, BOARD_SIZE-1));
-    set_cell(BOARD_SIZE -1, 0, get_player_symbol(get_player(1)));
-    add_player_square_list(get_player(1), add_coordinates(BOARD_SIZE - 1, 0));
+    set_cell_color(0, BOARD_SIZE-1, get_player_symbol(get_player(0)));
+    set_cell_color(BOARD_SIZE -1, 0, get_player_symbol(get_player(1)));
 }
 
 /** Update the board */
 
 // Propagate recursively a color from a square over another color
 int propagate(char color_covering, int x, int y, char color_covered) {
-    set_cell(x, y, color_covering);
+    set_cell_color(x, y, color_covering);
+    set_cell_flag(x, y, 1);
     int modifs = 1;
-    if ((x < BOARD_SIZE - 1) && (get_cell(x + 1, y) == color_covered)) {
+    if ((x < BOARD_SIZE - 1) && !get_cell_flag(x+1, y)) {
+        if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
         modifs += (propagate(color_covering, x + 1, y, color_covered));
     }
-    if ((x > 1) && (get_cell(x - 1, y) == color_covered)) {
+    if ((x > 1) && !get_cell_flag(x-1, y)) {
+        if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
         modifs += (propagate(color_covering, x - 1, y, color_covered));
     }
 
-    if ((y < BOARD_SIZE - 1) && (get_cell(x, y + 1) == color_covered)) {
+    if ((y < BOARD_SIZE - 1) && !get_cell_flag(x, y+1)){
+        if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
         modifs += (propagate(color_covering, x, y + 1, color_covered));
     }
-    if ((y > 1) && (get_cell(x, y - 1) == color_covered)) {
+    if ((y > 1) && !get_cell_flag(x, y-1)) {
+        if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
         modifs += (propagate(color_covering, x, y - 1, color_covered));
     }
     return modifs;
 }
 
-void update_boardV3(char letter, player_t* player){
+// Propagate recursively a color from a square over another color
+int simulate_propagate(char color_covering, int x, int y, char color_covered) {
+    set_cell_flag(x, y, 1);
+    int modifs = 1;
+    if ((x < BOARD_SIZE - 1) && !get_cell_flag(x+1, y)) {
+        if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
+        modifs += (propagate(color_covering, x + 1, y, color_covered));
+    }
+    if ((x > 1) && !get_cell_flag(x-1, y)) {
+        if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
+        modifs += (propagate(color_covering, x - 1, y, color_covered));
+    }
+
+    if ((y < BOARD_SIZE - 1) && !get_cell_flag(x, y+1)){
+        if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
+        modifs += (propagate(color_covering, x, y + 1, color_covered));
+    }
+    if ((y > 1) && !get_cell_flag(x, y-1)) {
+        if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
+        modifs += (propagate(color_covering, x, y - 1, color_covered));
+    }
+    return modifs;
+}
+
+void update_board(char letter, player_t* player){
     char sym = get_player_symbol(player);
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
 
-    propagate(letter, x, y, sym);
+    //propagate(letter, x, y, sym);
     int modifications = propagate(sym, x, y, letter);
+    clean_board();
 
-    set_player_square_owned(player, modifications);
-}
-
-
-void update_board(char letter, player_t* player){
-    int modifications = 0;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            if ((get_cell(j, i) == letter)&& is_player_neighbour(j, i,  get_player_symbol(player))) {
-                set_cell(j, i, get_player_symbol(player));
-                add_player_square_list(player, add_coordinates(j, i));
-                modifications += 1;
-            }
-        }
-    }
-    if(modifications != 0) {
-        set_player_square_owned(player, get_player_square_owned(player) + modifications);
-        update_board(letter, player);
-    }
-}
-
-/** Upgraded version of upgrade_board*/
-void update_boardV2(char letter, player_t* player){
-    int modifications = 0;
-    for(int i = 0; i < get_player_square_owned(player); i++) {
-        coordinates_t* cell = get_player_square_list(player, i);
-        int x = get_coordinates_x(cell);
-        int y = get_coordinates_y(cell);
-        if (y != 0){
-            if (get_cell(x, y-1)== letter) {
-                set_cell(x, y-1, get_player_symbol(player));
-                set_player_square_owned(player, get_player_square_owned(player) + 1);
-                add_player_square_list(player, add_coordinates(x, y-1));
-                modifications += 1;
-            }
-        }
-        if (x != BOARD_SIZE - 1) {
-            if (get_cell(x+1, y) == letter) {
-                set_cell(x+1, y, get_player_symbol(player));
-                set_player_square_owned(player, get_player_square_owned(player) + 1);
-                add_player_square_list(player, add_coordinates(x+1, y));
-                modifications += 1;
-            }
-        }
-        if (y != BOARD_SIZE - 1) {
-            if (get_cell(x, y+1) == letter) {
-                set_cell(x, y+1, get_player_symbol(player));
-                set_player_square_owned(player, get_player_square_owned(player) + 1);
-                add_player_square_list(player, add_coordinates(x, y+1));
-                modifications += 1;
-            }
-        }
-        if (x != 0) {
-            if (get_cell(x-1, y) == letter) {
-                set_cell(x-1, y, get_player_symbol(player));
-                set_player_square_owned(player, get_player_square_owned(player) + 1);
-                add_player_square_list(player, add_coordinates(x-1, y));
-                modifications += 1;
-            }
-        }
-
-    }
-    if(modifications != 0) {
-        update_boardV2(letter, player);
-    }
-}
-
-/** Returns 1 if the given cell has a neighbouring cell owned by the given player*/
-int is_player_neighbour(int x, int y, char player) {
-    if (y != 0){
-        if (get_cell(x, y-1)== player) {
-            return 1;
-        }
-    }
-    if (x != BOARD_SIZE - 1) {
-        if (get_cell(x+1, y) == player) {
-            return 1;
-        }
-    }
-    if (y != BOARD_SIZE - 1) {
-        if (get_cell(x, y+1) == player) {
-            return 1;
-        }
-    }
-    if (x != 0) {
-        if (get_cell(x-1, y) == player) {
-            return 1;
-        }
-    }
-    return 0;
+    set_player_cell_owned(player, modifications);
 }
 
 /** Main loop*/
@@ -335,17 +314,17 @@ void game_turn(player_t* player){
         letter = ai_move(player);
         printf("AI played letter %c\n", letter);
     }
-    update_boardV3(letter, player);
+    update_board(letter, player);
     print_board();
     for (int i = 0; i<2; i++) {
-        printf("Score Player %c = %d , %.2f %% \n", get_player_symbol(get_player(i)), get_player_square_owned(get_player(i)), (float) get_player_square_owned(player_list[i]) / (BOARD_SIZE * BOARD_SIZE));
+        printf("Score Player %c = %d , %.2f %% \n", get_player_symbol(get_player(i)), get_player_cell_owned(get_player(i)), (float) 100 * get_player_cell_owned(player_list[i]) / (BOARD_SIZE * BOARD_SIZE));
     }
 }
 
 /** Check if the game should end */
 int end_game() {
     for (int i = 0; i<2; i++) {
-        if (get_player_square_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
+        if (get_player_cell_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
             return 0;
         }
     }
@@ -358,7 +337,7 @@ int end_game() {
 /* Tests that the initialization works */
 SUT_TEST(init_cell)
 {
-   char c = get_cell(5, 5);
+   char c = get_cell_color(5, 5);
    SUT_CHAR_EQUAL(c, '\0', "Creating the board does not initialize the cells to '\\0' but to '%c'", c);
 
    return 1;
@@ -369,8 +348,8 @@ SUT_TEST(getset_cell)
 {
    char c;
 
-   set_cell(5, 5, 'A');
-   c = get_cell(5, 5);
+   set_cell_color(5, 5, 'A');
+   c = get_cell_color(5, 5);
    SUT_CHAR_EQUAL(c, 'A', "Setting a cell to 'A' leads to '%c' as a value instead", c);
 
    return 1;

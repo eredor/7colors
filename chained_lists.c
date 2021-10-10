@@ -9,6 +9,7 @@
 struct coordinates {
     int x;
     int y;
+    int flag;
 };
 
 /** Create a coordinates element*/
@@ -16,6 +17,7 @@ coordinates_t* add_coordinates(int x, int y){
     coordinates_t* res = malloc(sizeof(coordinates_t));
     res -> x = x;
     res -> y = y;
+    res -> flag = 0;
     return res;
 }
 
@@ -26,8 +28,12 @@ int get_coordinates_x(coordinates_t* coordinates){
 int get_coordinates_y(coordinates_t* coordinates){
     return coordinates -> y;
 }
-
-
+int get_coordinates_flag(coordinates_t* coordinates){
+    return coordinates -> flag;
+}
+void set_coordinates_flag(coordinates_t* coordinates, int val){
+    coordinates -> flag = val; 
+}
 
 /** Chained lists implementation */
 typedef struct element element_t;

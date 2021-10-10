@@ -12,6 +12,8 @@ coordinates_t* add_coordinates(int x, int y);
 /** Getters and setters for coordinates*/
 int get_coordinates_x(coordinates_t* coordinates);
 int get_coordinates_y(coordinates_t* coordinates);
+int get_coordinates_flag(coordinates_t* coordinates);
+void set_coordinates_flag(coordinates_t* coordinates, int val);
 
 // Note : we define here the coordinates type because lists use it.
 
