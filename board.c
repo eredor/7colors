@@ -175,18 +175,14 @@ char glouton_strategy(player_t* player){
     char letter;
     int max = 0;
     int temp;
-    for (char i = 'D'; i < 'A' + NB_COLORS; i++) {
+    for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
-        print_board_flag();
-        printf("\n");
         clean_board();
-        printf("Lettre : %c Score : %d \n", i, temp);
         if(temp > max){
             max = temp;
             letter = i;
         }
     }
-    printf("Lettre jouee : %c \n", letter);
     return letter;
 }
 
@@ -251,7 +247,7 @@ int propagate(char color_covering, int x, int y, char color_covered) {
         if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
         modifs += (propagate(color_covering, x + 1, y, color_covered));
     }
-    if ((x > 1) && !get_cell_flag(x-1, y)) {
+    if ((x > 0) && !get_cell_flag(x-1, y)) {
         if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
         modifs += (propagate(color_covering, x - 1, y, color_covered));
     }
@@ -260,7 +256,7 @@ int propagate(char color_covering, int x, int y, char color_covered) {
         if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
         modifs += (propagate(color_covering, x, y + 1, color_covered));
     }
-    if ((y > 1) && !get_cell_flag(x, y-1)) {
+    if ((y > 0) && !get_cell_flag(x, y-1)) {
         if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
         modifs += (propagate(color_covering, x, y - 1, color_covered));
     }
@@ -273,20 +269,19 @@ int simulate_propagate(char color_covering, int x, int y, char color_covered) {
     int modifs = 1;
     if ((x < BOARD_SIZE - 1) && !get_cell_flag(x+1, y)) {
         if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
-        modifs += (propagate(color_covering, x + 1, y, color_covered));
+        modifs += (simulate_propagate(color_covering, x + 1, y, color_covered));
     }
-    if ((x > 1) && !get_cell_flag(x-1, y)) {
+    if ((x > 0) && !get_cell_flag(x-1, y)) {
         if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
-        modifs += (propagate(color_covering, x - 1, y, color_covered));
+        modifs += (simulate_propagate(color_covering, x - 1, y, color_covered));
     }
-
     if ((y < BOARD_SIZE - 1) && !get_cell_flag(x, y+1)){
         if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
-        modifs += (propagate(color_covering, x, y + 1, color_covered));
+        modifs += (simulate_propagate(color_covering, x, y + 1, color_covered));
     }
-    if ((y > 1) && !get_cell_flag(x, y-1)) {
+    if ((y > 0) && !get_cell_flag(x, y-1)) {
         if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
-        modifs += (propagate(color_covering, x, y - 1, color_covered));
+        modifs += (simulate_propagate(color_covering, x, y - 1, color_covered));
     }
     return modifs;
 }
