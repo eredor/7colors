@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/kaznad/7colors/board.c" "/home/kaznad/7colors/CMakeFiles/tests.dir/board.c.o"
-  "/home/kaznad/7colors/coordinates.c" "/home/kaznad/7colors/CMakeFiles/tests.dir/coordinates.c.o"
-  "/home/kaznad/7colors/player.c" "/home/kaznad/7colors/CMakeFiles/tests.dir/player.c.o"
-  "/home/kaznad/7colors/tests.c" "/home/kaznad/7colors/CMakeFiles/tests.dir/tests.c.o"
+  "/home/asus/7colors/7colors/board.c" "/home/asus/7colors/7colors/CMakeFiles/tests.dir/board.c.o"
+  "/home/asus/7colors/7colors/coordinates.c" "/home/asus/7colors/7colors/CMakeFiles/tests.dir/coordinates.c.o"
+  "/home/asus/7colors/7colors/player.c" "/home/asus/7colors/7colors/CMakeFiles/tests.dir/player.c.o"
+  "/home/asus/7colors/7colors/tests.c" "/home/asus/7colors/7colors/CMakeFiles/tests.dir/tests.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

@@ -16,9 +16,11 @@ cell_t* create_cell(char symbol);
 
 /** Retrieves the color of a given board cell */
 char get_cell_color(int x, int y);
-int get_cell_flag(int x, int y);
+int get_cell_visited(int x, int y);
+int get_cell_turn_visited(int x, int y);
 void set_cell_color(int x, int y, char color);
-void set_cell_flag(int x, int y, char flag);
+void set_cell_visited(int x, int y, int visited);
+void set_cell_turn_visited(int x, int y, int turn);
 
 /** Getter and setter for the list*/
 player_t* get_player(int i);
@@ -33,12 +35,15 @@ void set_player(int i, player_t* player);
 void print_board(void);
 void print_board_flag(void);
 void clean_board(int x, int y);
+void clean_board_turn_visited(int x, int y, int turn);
+void print_board_visi(void);
 
 /** Alea chooses a random letter to play */
 char alea_strategy(player_t* player);
 char glouton_strategy(player_t* player);
 char hegemonique_strategy(player_t* player);
 int neighbours_counter(int i);
+int is_landlocked(int x, int y, char color);
 char glouton_prevoyant_strategy(player_t* player);
 
 /** Returns the move of an ai player */
@@ -54,7 +59,10 @@ void init_game();
 /** Initialize the board */
 void init_board();
 
-int simulate_propagate(char color_covering, int x, int y, char color_covered);
+int simulate_propagate(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_alea(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_hegemonique(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_glouton(char color_covering, int x, int y, char color_covered, int ai, int turn);
 
 /** Propagates recursively a color over another */
 int propagate(char color_covering, int x, int y, char color_covered);
