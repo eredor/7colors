@@ -234,8 +234,11 @@ char glouton_prevoyant_strategy(player_t* player){
     int max = 0;
     int temp;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
-        clean_board(x, y);
+        for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
+            temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+            temp += simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j);
+            clean_board(x, y);
+        }
         if(temp > max){
             max = temp;
             letter = i;
@@ -385,7 +388,7 @@ void game_turn(player_t* player){
         while ((c = getchar()) != '\n' && c != EOF) {}
     } else {
         letter = ai_move(player);
-        printf("AI played letter %c\n", letter);
+        printf("AI %d played letter %c\n", get_player_ai_type(player),letter);
     }
     update_board(letter, player);
     print_board();
