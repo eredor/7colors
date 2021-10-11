@@ -45,13 +45,14 @@ void set_player(int i, player_t* player);
  */
 void print_board(void);
 void print_board_flag(void);
-void clean_board();
+void clean_board(int x, int y);
 
 /** Alea chooses a random letter to play */
 char alea_strategy(player_t* player);
 char glouton_strategy(player_t* player);
 char hegemonique_strategy(player_t* player);
 int neighbours_counter(int i);
+char glouton_prevoyant_strategy(player_t* player);
 
 /** Returns the move of an ai player */
 char ai_move(player_t* player);

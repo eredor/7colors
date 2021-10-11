@@ -147,11 +147,19 @@ void print_board_flag(void)
         printf("\n");
     }
 }
-void clean_board(){
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            set_cell_flag(i, j, 0);
-        }
+void clean_board(int x, int y){
+    set_cell_flag(x, y, 0);
+    if ((x < BOARD_SIZE - 1) && get_cell_flag(x + 1, y)) {
+        clean_board(x + 1, y);
+    }
+    if ((x > 0) && get_cell_flag(x - 1, y)) {
+        clean_board(x - 1, y);
+    }
+    if ((y < BOARD_SIZE - 1) && get_cell_flag(x, y + 1)){
+        clean_board(x, y + 1);
+    }
+    if ((y > 0) && get_cell_flag(x, y - 1)) {
+        clean_board(x, y - 1);
     }
 }
 
@@ -160,25 +168,29 @@ void clean_board(){
 /** Alea chooses a random letter to play */
 char alea_strategy(player_t* player)
 {
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
     srand(time(NULL));
     char letter = 'A' + (rand() % NB_COLORS);
     while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
-        clean_board();
+        clean_board(x, y);
     }
-    clean_board();
+    clean_board(x, y);
     neighbours_counter(0);
     return letter;
 }
 
 
 char glouton_strategy(player_t* player){
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
     char letter;
     int max = 0;
     int temp;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
-        clean_board();
+        clean_board(x, y);
         if(temp > max){
             max = temp;
             letter = i;
@@ -190,6 +202,8 @@ char glouton_strategy(player_t* player){
 
 
 char hegemonique_strategy(player_t* player){
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
     char letter;
     int max = 0;
     int temp, cells;
@@ -197,7 +211,7 @@ char hegemonique_strategy(player_t* player){
         cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
         temp = neighbours_counter(1) - 1;
         neighbours_counter(0);
-        clean_board();
+        clean_board(x, y);
         if((temp > max) && (cells > get_player_cell_owned(player))){
             max = temp;
             letter = i;
@@ -214,12 +228,14 @@ int neighbours_counter(int i){
 }
 
 char glouton_prevoyant_strategy(player_t* player){
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
     char letter;
     int max = 0;
     int temp;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
-        clean_board();
+        clean_board(x, y);
         if(temp > max){
             max = temp;
             letter = i;
@@ -355,7 +371,7 @@ void update_board(char letter, player_t* player){
     int y = get_player_init_y(player);
 
     int modifications = propagate(sym, x, y, letter);
-    clean_board();
+    clean_board(x, y);
 
     set_player_cell_owned(player, modifications);
 }
