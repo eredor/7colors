@@ -1,1 +1,1 @@
-/usr/bin/cc -Werror -Wall -Wextra -g -Wmissing-declarations -Wno-unused-parameter   -rdynamic CMakeFiles/7colors.dir/main.c.o CMakeFiles/7colors.dir/board.c.o CMakeFiles/7colors.dir/chained_lists.c.o  -o 7colors 
+/usr/bin/cc -Werror -Wall -Wextra -g -Wmissing-declarations -Wno-unused-parameter   -rdynamic CMakeFiles/7colors.dir/main.c.o CMakeFiles/7colors.dir/board.c.o CMakeFiles/7colors.dir/player.c.o CMakeFiles/7colors.dir/coordinates.c.o  -o 7colors 

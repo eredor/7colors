@@ -1,5 +1,6 @@
 /* Template of the 7 wonders of the world of the 7 colors assigment */
-#include "chained_lists.h"
+#include "player.h"
+#include "coordinates.h"
 
 /* Header file of the board module */
 
@@ -18,20 +19,6 @@ char get_cell_color(int x, int y);
 int get_cell_flag(int x, int y);
 void set_cell_color(int x, int y, char color);
 void set_cell_flag(int x, int y, char flag);
-
-/** Player implementation */
-typedef struct player player_t;
-
-/** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol, int ai_type, int x_init, int y_init);
-
-/** Getters and setters for player*/
-char get_player_symbol(player_t* player);
-int get_player_cell_owned(player_t* player);
-int get_player_ai_type(player_t* player);
-int get_player_init_x(player_t* player);
-int get_player_init_y(player_t* player);
-void set_player_cell_owned(player_t* player, int cell_number);
 
 /** Getter and setter for the list*/
 player_t* get_player(int i);

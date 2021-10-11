@@ -1,1 +1,1 @@
-/usr/bin/cc -Werror -Wall -Wextra -g -Wmissing-declarations -Wno-unused-parameter   -rdynamic CMakeFiles/tests.dir/tests.c.o CMakeFiles/tests.dir/board.c.o CMakeFiles/tests.dir/chained_lists.c.o  -o tests 
+/usr/bin/cc -Werror -Wall -Wextra -g -Wmissing-declarations -Wno-unused-parameter   -rdynamic CMakeFiles/tests.dir/tests.c.o CMakeFiles/tests.dir/board.c.o CMakeFiles/tests.dir/player.c.o CMakeFiles/tests.dir/coordinates.c.o  -o tests 

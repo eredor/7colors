@@ -5,7 +5,8 @@
 #include "board.h"   /* Enforce that the header file matches the declarations */
 #include "simple_unit_test.h" /* Import the testing infrastructure */
 #include <time.h> /* Import time to initialize random seed */
-#include "chained_lists.h" /* Use of chained lists */
+#include "player.h" /* Import player module */
+#include "coordinates.h" /* Import coordinates module */
 
 
 /* Note: This template comes with several global definitions. For now.
@@ -22,52 +23,6 @@
 #define BOARD_SIZE 30
 /* SPOT for the number of colors */
 #define NB_COLORS 7
-
-
-/** Player implementation */
-struct player {
-    char symbol;
-    int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
-    int x_init;
-    int y_init;
-    int cell_owned;
-};
-
-/** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
-    player_t* res = malloc(sizeof(player_t));
-    res -> symbol = symbol;
-    res -> ai_type = ai_type;
-    res -> x_init = x_init;
-    res -> y_init = y_init;
-    res -> cell_owned = 1;
-    return res;
-}
-
-/** Getters and setters for player*/
-char get_player_symbol(player_t* player)
-{
-    return player->symbol;
-}
-int get_player_cell_owned(player_t* player)
-{
-    return player->cell_owned;
-}
-int get_player_ai_type(player_t* player)
-{
-    return player -> ai_type;
-}
-int get_player_init_x(player_t* player) {
-    return player -> x_init;
-}
-int get_player_init_y(player_t* player) {
-    return player -> y_init;
-}
-void set_player_cell_owned(player_t* player,  int cell_number)
-{
-    player->cell_owned = cell_number;
-}
-
 
 
 /** List of players*/
@@ -136,7 +91,7 @@ void print_board(void)
     }
 }
 
- 
+
 void print_board_flag(void)
 {
     int i, j;
@@ -253,7 +208,7 @@ char glouton_prevoyant_strategy(player_t* player){
 char ai_move(player_t* player)
 {
     switch (get_player_ai_type(player)) {
-        case 1: return alea_strategy(player); 
+        case 1: return alea_strategy(player);
                 break;
         case 2: return glouton_strategy(player);
                 break;
