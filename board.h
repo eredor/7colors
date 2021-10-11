@@ -43,6 +43,7 @@ char alea_strategy(player_t* player);
 char glouton_strategy(player_t* player);
 char hegemonique_strategy(player_t* player);
 int neighbours_counter(int i);
+int is_landlocked(int x, int y, char color);
 char glouton_prevoyant_strategy(player_t* player);
 
 /** Returns the move of an ai player */
@@ -58,7 +59,10 @@ void init_game();
 /** Initialize the board */
 void init_board();
 
-int simulate_propagate(char color_covering, int x, int y, char color_covered, int turn);
+int simulate_propagate(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_alea(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_hegemonique(char color_covering, int x, int y, char color_covered, int ai, int turn);
+int simulate_glouton(char color_covering, int x, int y, char color_covered, int ai, int turn);
 
 /** Propagates recursively a color over another */
 int propagate(char color_covering, int x, int y, char color_covered);

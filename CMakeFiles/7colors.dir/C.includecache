@@ -28,6 +28,12 @@ coordinates.h
 
 /home/asus/7colors/7colors/coordinates.h
 
+/home/asus/7colors/7colors/main.c
+stdio.h
+-
+board.h
+/home/asus/7colors/7colors/board.h
+
 /home/asus/7colors/7colors/player.h
 
 /home/asus/7colors/7colors/simple_unit_test.h

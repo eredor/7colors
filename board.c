@@ -144,7 +144,7 @@ char alea_strategy(player_t* player)
     int y = get_player_init_y(player);
     srand(time(NULL));
     char letter = 'A' + (rand() % NB_COLORS);
-    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter, 0) == get_player_cell_owned(player)) {
+    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter, 1,0) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
@@ -161,7 +161,7 @@ char glouton_strategy(player_t* player){
     int max = 0;
     int temp;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 0);
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 2, 0);
         clean_board(x, y);
         if(temp > max){
             max = temp;
@@ -180,7 +180,7 @@ char hegemonique_strategy(player_t* player){
     int max = 0;
     int temp, cells;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 0);
+        cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 3, 0);
         temp = neighbours_counter(1) - 1;
         neighbours_counter(0);
         clean_board(x, y);
@@ -199,23 +199,37 @@ int neighbours_counter(int i){
     return res;
 }
 
+int is_landlocked(int x, int y, char color)  {
+    if ((x < BOARD_SIZE - 1) && (get_cell_color(x + 1, y) == color)) 
+        return 1;
+    
+    if ((x> 0) && (get_cell_color(x - 1, y) == color)) 
+        return 1;
+    
+    if ((y < BOARD_SIZE - 1) && (get_cell_color(x, y + 1) == color)) 
+        return 1;
+    
+    if ((y> 0) && (get_cell_color(x, y-1) == color)) 
+        return 1;
+        
+    return 0;
+}
+
 char glouton_prevoyant_strategy(player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
     char letter;
-    char letter2;
     int max = 0;
     int temp, temp2;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 1);
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 4, 1);
         if(temp != get_player_cell_owned(player)){
             for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
-                temp2 = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j, 2);
+                temp2 = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j, 4, 2);
                 clean_board_turn_visited(x, y, 2);
                 if(temp2 > max){
                 max = temp2;
                 letter = i;
-                letter2 = j;
                 }
             }
         }
@@ -307,49 +321,97 @@ int propagate(char color_covering, int x, int y, char color_covered) {
 }
 
 // Propagate recursively a color from a square over another color
-int simulate_propagate(char color_covering, int x, int y, char color_covered, int turn) {
+int simulate_propagate(char color_covering, int x, int y, char color_covered, int ai, int turn) {
     set_cell_visited(x, y, 1);
     if (turn && !(get_cell_turn_visited(x,y)))set_cell_turn_visited(x, y, turn);
     int cell_owned = 1;
     if ((x < BOARD_SIZE - 1) && !get_cell_visited(x+1, y)) {
-        if ( (get_cell_color(x + 1, y) == color_covered) || (get_cell_color(x + 1, y) == color_covering) || (get_cell_turn_visited(x+1,y)) ){
-        cell_owned += (simulate_propagate(color_covering, x + 1, y, color_covered, turn));
-        }
-        else if (!turn) {
-            set_cell_visited(x+1, y, 1);
-            neighbours_counter(1);
-        }
+        switch (ai) {
+            case 1: cell_owned += simulate_alea(color_covering, x+1, y, color_covered, ai, turn);
+                    break;
+            case 2: cell_owned += simulate_alea(color_covering, x+1, y, color_covered, ai, turn);
+                    break;
+            case 3: cell_owned += simulate_hegemonique(color_covering, x+1, y, color_covered, ai, turn);
+                    break;
+            case 4: cell_owned += simulate_glouton(color_covering, x+1, y, color_covered, ai, turn);
+                    break;
+        }   
     }
     if ((x > 0) && !get_cell_visited(x-1, y)) {
-        if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering) || (get_cell_turn_visited(x-1,y)))
-        {
-            cell_owned += (simulate_propagate(color_covering, x - 1, y, color_covered, turn));
-        }
-        else if (!turn){
-            set_cell_visited(x-1, y, 1);
-            neighbours_counter(1);
-        }
+        switch (ai) {
+            case 1: cell_owned += simulate_alea(color_covering, x-1, y, color_covered, ai, turn);
+                    break;
+            case 2: cell_owned += simulate_alea(color_covering, x-1, y, color_covered, ai, turn);
+                    break;
+            case 3: cell_owned += simulate_hegemonique(color_covering, x-1, y, color_covered, ai, turn);
+                    break;
+            case 4: cell_owned += simulate_glouton(color_covering, x-1, y, color_covered, ai, turn);
+                    break;
+        } 
     }
     if ((y < BOARD_SIZE - 1) && !get_cell_visited(x, y+1)){
-        if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering) || (get_cell_turn_visited(x, y+1))){
-            cell_owned += (simulate_propagate(color_covering, x, y + 1, color_covered, turn));
-        }
-        else if (!turn) {
-            set_cell_visited(x, y+1, 1);
-            neighbours_counter(1);
-        }
+        switch (ai) {
+            case 1: cell_owned += simulate_alea(color_covering, x, y+1, color_covered, ai, turn);
+                    break;
+            case 2: cell_owned += simulate_alea(color_covering, x, y+1, color_covered, ai, turn);
+                    break;
+            case 3: cell_owned += simulate_hegemonique(color_covering, x, y+1, color_covered, ai, turn);
+                    break;
+            case 4: cell_owned += simulate_glouton(color_covering, x, y+1, color_covered, ai, turn);
+                    break;
+        } 
     }
     if ((y > 0) && !get_cell_visited(x, y-1)) {
-        if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering) || (get_cell_turn_visited(x, y-1))){
-            cell_owned += (simulate_propagate(color_covering, x, y - 1, color_covered, turn));
-        }
-        else if (!turn) {
-            set_cell_visited(x, y-1, 1);
-            neighbours_counter(1);
-        }
+        switch (ai) {
+            case 1: cell_owned += simulate_alea(color_covering, x, y-1, color_covered, ai, turn);
+                    break;
+            case 2: cell_owned += simulate_alea(color_covering, x, y-1, color_covered, ai, turn);
+                    break;
+            case 3: cell_owned += simulate_hegemonique(color_covering, x, y-1, color_covered, ai, turn);
+                    break;
+            case 4: cell_owned += simulate_glouton(color_covering, x, y-1, color_covered, ai, turn);
+                    break;
+        } 
+
     }
     return cell_owned;
 }
+
+int simulate_alea(char color_covering, int x, int y, char color_covered, int ai, int turn) {
+    int cell_owned = 0;
+        if ((get_cell_color(x, y) == color_covered) || (get_cell_color(x, y) == color_covering)){
+            cell_owned += (simulate_propagate(color_covering, x, y, color_covered, ai, turn));
+        }
+   return cell_owned;
+}
+
+int simulate_hegemonique(char color_covering, int x, int y, char color_covered, int ai, int turn) {
+    int cell_owned = 0;
+        if ((get_cell_color(x, y) == color_covered) || (get_cell_color(x, y) == color_covering)){
+            cell_owned += (simulate_propagate(color_covering, x, y, color_covered, ai, turn));
+        }
+        else {
+            set_cell_visited(x, y, 1);
+            if(!is_landlocked(x,y,color_covering))
+            neighbours_counter(1);
+        }
+
+   return cell_owned;
+}
+
+int simulate_glouton(char color_covering, int x, int y, char color_covered, int ai, int turn) {
+    int cell_owned = 0;
+        if ((get_cell_color(x, y) == color_covered) || (get_cell_color(x, y) == color_covering) || (get_cell_turn_visited(x, y))){
+            cell_owned += (simulate_propagate(color_covering, x, y, color_covered, ai, turn));
+        }
+        else {
+            set_cell_visited(x, y, 1);
+            neighbours_counter(1);
+        }
+
+   return cell_owned;
+}
+
 
 void update_board(char letter, player_t* player){
     char sym = get_player_symbol(player);
