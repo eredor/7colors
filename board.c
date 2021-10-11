@@ -198,7 +198,7 @@ char hegemonique_strategy(player_t* player){
         temp = neighbours_counter(1) - 1;
         neighbours_counter(0);
         clean_board();
-        if((temp > max) && (cells != get_player_cell_owned(player))){
+        if((temp > max) && (cells > get_player_cell_owned(player))){
             max = temp;
             letter = i;
         }
@@ -212,6 +212,24 @@ int neighbours_counter(int i){
     else res = 0;
     return res;
 }
+
+char glouton_prevoyant_strategy(player_t* player){
+    char letter;
+    int max = 0;
+    int temp;
+    for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+        clean_board();
+        if(temp > max){
+            max = temp;
+            letter = i;
+        }
+    }
+    neighbours_counter(0);
+    return letter;
+}
+
+
 /** Returns the move of an ai player */
 char ai_move(player_t* player)
 {
@@ -221,6 +239,8 @@ char ai_move(player_t* player)
         case 2: return glouton_strategy(player);
                 break;
         case 3: return hegemonique_strategy(player);
+                break;
+        case 4: return glouton_prevoyant_strategy(player);
                 break;
         default: return 'A';
                  break;
