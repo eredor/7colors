@@ -3,13 +3,18 @@
 
 CMakeFiles/7colors.dir/board.c.o: board.c
 CMakeFiles/7colors.dir/board.c.o: board.h
-CMakeFiles/7colors.dir/board.c.o: chained_lists.h
+CMakeFiles/7colors.dir/board.c.o: coordinates.h
+CMakeFiles/7colors.dir/board.c.o: player.h
 CMakeFiles/7colors.dir/board.c.o: simple_unit_test.h
 
-CMakeFiles/7colors.dir/chained_lists.c.o: chained_lists.c
-CMakeFiles/7colors.dir/chained_lists.c.o: chained_lists.h
+CMakeFiles/7colors.dir/coordinates.c.o: coordinates.c
+CMakeFiles/7colors.dir/coordinates.c.o: coordinates.h
 
 CMakeFiles/7colors.dir/main.c.o: board.h
-CMakeFiles/7colors.dir/main.c.o: chained_lists.h
+CMakeFiles/7colors.dir/main.c.o: coordinates.h
 CMakeFiles/7colors.dir/main.c.o: main.c
+CMakeFiles/7colors.dir/main.c.o: player.h
+
+CMakeFiles/7colors.dir/player.c.o: player.c
+CMakeFiles/7colors.dir/player.c.o: player.h
 

@@ -14,6 +14,7 @@ struct player {
     int cell_owned;
 };
 
+
 /** Create a player whose symbol is taken in parameter*/
 player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
     player_t* res = malloc(sizeof(player_t));

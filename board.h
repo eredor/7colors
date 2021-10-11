@@ -1,5 +1,6 @@
 /* Template of the 7 wonders of the world of the 7 colors assigment */
-#include "chained_lists.h"
+#include "player.h"
+#include "coordinates.h"
 
 /* Header file of the board module */
 

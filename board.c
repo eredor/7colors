@@ -5,7 +5,8 @@
 #include "board.h"   /* Enforce that the header file matches the declarations */
 #include "simple_unit_test.h" /* Import the testing infrastructure */
 #include <time.h> /* Import time to initialize random seed */
-#include "chained_lists.h" /* Use of chained lists */
+#include "player.h" /* Import player module */
+#include "coordinates.h" /* Import coordinates module */
 
 
 /* Note: This template comes with several global definitions. For now.
@@ -23,26 +24,6 @@
 /* SPOT for the number of colors */
 #define NB_COLORS 7
 
-
-/** Player implementation */
-struct player {
-    char symbol;
-    int ai_type; // = 0 if it's a human player, the number corresponding to the ai type otherwise
-    int x_init;
-    int y_init;
-    int cell_owned;
-};
-
-/** Create a player whose symbol is taken in parameter*/
-player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
-    player_t* res = malloc(sizeof(player_t));
-    res -> symbol = symbol;
-    res -> ai_type = ai_type;
-    res -> x_init = x_init;
-    res -> y_init = y_init;
-    res -> cell_owned = 1;
-    return res;
-}
 
 /** List of players*/
 player_t* player_list[2];

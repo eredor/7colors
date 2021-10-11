@@ -3,11 +3,15 @@
 
 CMakeFiles/tests.dir/board.c.o: board.c
 CMakeFiles/tests.dir/board.c.o: board.h
-CMakeFiles/tests.dir/board.c.o: chained_lists.h
+CMakeFiles/tests.dir/board.c.o: coordinates.h
+CMakeFiles/tests.dir/board.c.o: player.h
 CMakeFiles/tests.dir/board.c.o: simple_unit_test.h
 
-CMakeFiles/tests.dir/chained_lists.c.o: chained_lists.c
-CMakeFiles/tests.dir/chained_lists.c.o: chained_lists.h
+CMakeFiles/tests.dir/coordinates.c.o: coordinates.c
+CMakeFiles/tests.dir/coordinates.c.o: coordinates.h
+
+CMakeFiles/tests.dir/player.c.o: player.c
+CMakeFiles/tests.dir/player.c.o: player.h
 
 CMakeFiles/tests.dir/tests.c.o: simple_unit_test.h
 CMakeFiles/tests.dir/tests.c.o: tests.c
