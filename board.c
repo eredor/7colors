@@ -44,32 +44,6 @@ player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
     return res;
 }
 
-/** Getters and setters for player*/
-char get_player_symbol(player_t* player)
-{
-    return player->symbol;
-}
-int get_player_cell_owned(player_t* player)
-{
-    return player->cell_owned;
-}
-int get_player_ai_type(player_t* player)
-{
-    return player -> ai_type;
-}
-int get_player_init_x(player_t* player) {
-    return player -> x_init;
-}
-int get_player_init_y(player_t* player) {
-    return player -> y_init;
-}
-void set_player_cell_owned(player_t* player,  int cell_number)
-{
-    player->cell_owned = cell_number;
-}
-
-
-
 /** List of players*/
 player_t* player_list[2];
 
@@ -136,7 +110,7 @@ void print_board(void)
     }
 }
 
- 
+
 void print_board_flag(void)
 {
     int i, j;
@@ -234,7 +208,7 @@ char glouton_prevoyant_strategy(player_t* player){
 char ai_move(player_t* player)
 {
     switch (get_player_ai_type(player)) {
-        case 1: return alea_strategy(player); 
+        case 1: return alea_strategy(player);
                 break;
         case 2: return glouton_strategy(player);
                 break;
