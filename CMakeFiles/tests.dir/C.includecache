@@ -6,33 +6,33 @@
 
 #IncludeRegexTransform: 
 
-/home/kaznad/7colors/board.c
+/home/asus/7colors/7colors/board.c
 stdio.h
 -
 board.h
-/home/kaznad/7colors/board.h
+/home/asus/7colors/7colors/board.h
 simple_unit_test.h
-/home/kaznad/7colors/simple_unit_test.h
+/home/asus/7colors/7colors/simple_unit_test.h
 time.h
 -
 player.h
-/home/kaznad/7colors/player.h
+/home/asus/7colors/7colors/player.h
 coordinates.h
-/home/kaznad/7colors/coordinates.h
+/home/asus/7colors/7colors/coordinates.h
 
-/home/kaznad/7colors/board.h
+/home/asus/7colors/7colors/board.h
 player.h
-/home/kaznad/7colors/player.h
+/home/asus/7colors/7colors/player.h
 coordinates.h
-/home/kaznad/7colors/coordinates.h
+/home/asus/7colors/7colors/coordinates.h
 
-/home/kaznad/7colors/coordinates.h
+/home/asus/7colors/7colors/coordinates.h
 
-/home/kaznad/7colors/player.h
+/home/asus/7colors/7colors/player.h
 
-/home/kaznad/7colors/simple_unit_test.h
+/home/asus/7colors/7colors/simple_unit_test.h
 simple_unit_test.h
-/home/kaznad/7colors/simple_unit_test.h
+/home/asus/7colors/7colors/simple_unit_test.h
 stdlib.h
 -
 stdio.h

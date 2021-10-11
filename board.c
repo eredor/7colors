@@ -40,7 +40,8 @@ void set_player(int i, player_t* player){
 
 struct cell {
     char symbol;
-    int flag;
+    int visited;
+    int turn_visited;
 };
 
 /** Represent the actual current board game */
@@ -50,7 +51,8 @@ cell_t* board[BOARD_SIZE * BOARD_SIZE];
 cell_t* create_cell(char symbol){
     cell_t* res = malloc(sizeof(cell_t));
     res -> symbol = symbol;
-    res -> flag = 0;
+    res -> visited = 0;
+    res -> turn_visited = 0;
     return res;
 }
 
@@ -59,9 +61,13 @@ char get_cell_color(int x, int y)
 {
     return board[y * BOARD_SIZE + x] -> symbol;
 }
-int get_cell_flag(int x, int y)
+int get_cell_visited(int x, int y)
 {
-    return board[y * BOARD_SIZE + x] -> flag;
+    return board[y * BOARD_SIZE + x] -> visited;
+}
+int get_cell_turn_visited(int x, int y)
+{
+    return board[y * BOARD_SIZE + x] -> turn_visited;
 }
 
 /** Changes the color of a given board cell */
@@ -70,9 +76,13 @@ void set_cell_color(int x, int y, char color)
     board[y * BOARD_SIZE + x]->symbol = color;
 }
 
-void set_cell_flag(int x, int y, char flag)
+void set_cell_visited(int x, int y, int visited)
 {
-    board[y * BOARD_SIZE + x]->flag = flag;
+    board[y * BOARD_SIZE + x]->visited = visited;
+}
+void set_cell_turn_visited(int x, int y, int turn)
+{
+    board[y * BOARD_SIZE + x]->turn_visited = turn;
 }
 
 /** Prints the current state of the board on screen
@@ -91,30 +101,37 @@ void print_board(void)
     }
 }
 
-
-void print_board_flag(void)
-{
-    int i, j;
-    for (i = 0; i < BOARD_SIZE; i++) {
-        for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%d  ", get_cell_flag(i, j));
-        }
-        printf("\n");
-    }
-}
 void clean_board(int x, int y){
-    set_cell_flag(x, y, 0);
-    if ((x < BOARD_SIZE - 1) && get_cell_flag(x + 1, y)) {
+    set_cell_visited(x, y, 0);
+    set_cell_turn_visited(x, y, 0);
+    if ((x < BOARD_SIZE - 1) && (get_cell_visited(x + 1, y) || get_cell_turn_visited(x+1, y))) {
         clean_board(x + 1, y);
     }
-    if ((x > 0) && get_cell_flag(x - 1, y)) {
+    if ((x > 0) && (get_cell_visited(x - 1, y)|| get_cell_turn_visited(x-1, y))) {
         clean_board(x - 1, y);
     }
-    if ((y < BOARD_SIZE - 1) && get_cell_flag(x, y + 1)){
+    if ((y < BOARD_SIZE - 1) && (get_cell_visited(x, y + 1) || get_cell_turn_visited(x, y+1))){
         clean_board(x, y + 1);
     }
-    if ((y > 0) && get_cell_flag(x, y - 1)) {
+    if ((y > 0) && (get_cell_visited(x, y - 1) || get_cell_turn_visited(x, y-1))) {
         clean_board(x, y - 1);
+    }
+}
+
+void clean_board_turn_visited(int x, int y, int turn){
+    set_cell_visited(x, y, 0);
+    if(get_cell_turn_visited(x,y) == turn) set_cell_turn_visited(x, y, 0);
+    if ((x < BOARD_SIZE - 1) && ((get_cell_turn_visited(x + 1, y) == turn) || get_cell_visited(x+1,y))) {
+        clean_board_turn_visited(x + 1, y, turn);
+    }
+    if ((x > 0) && ((get_cell_turn_visited(x - 1, y) == turn) || get_cell_visited(x-1,y))) {
+        clean_board_turn_visited(x - 1, y, turn);
+    }
+    if ((y < BOARD_SIZE - 1) && ((get_cell_turn_visited(x, y + 1) == turn) || get_cell_visited(x,y+1))){
+        clean_board_turn_visited(x, y + 1, turn);
+    }
+    if ((y > 0) && ((get_cell_turn_visited(x, y - 1) == turn) || get_cell_visited(x,y-1))) {
+        clean_board_turn_visited(x, y - 1, turn);
     }
 }
 
@@ -127,7 +144,7 @@ char alea_strategy(player_t* player)
     int y = get_player_init_y(player);
     srand(time(NULL));
     char letter = 'A' + (rand() % NB_COLORS);
-    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter) == get_player_cell_owned(player)) {
+    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter, 0) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
@@ -144,7 +161,7 @@ char glouton_strategy(player_t* player){
     int max = 0;
     int temp;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 0);
         clean_board(x, y);
         if(temp > max){
             max = temp;
@@ -163,7 +180,7 @@ char hegemonique_strategy(player_t* player){
     int max = 0;
     int temp, cells;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
+        cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 0);
         temp = neighbours_counter(1) - 1;
         neighbours_counter(0);
         clean_board(x, y);
@@ -186,18 +203,23 @@ char glouton_prevoyant_strategy(player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
     char letter;
+    char letter2;
     int max = 0;
-    int temp;
+    int temp, temp2;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
-            temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i);
-            temp += simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j);
-            clean_board(x, y);
+        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 1);
+        if(temp != get_player_cell_owned(player)){
+            for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
+                temp2 = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j, 2);
+                clean_board_turn_visited(x, y, 2);
+                if(temp2 > max){
+                max = temp2;
+                letter = i;
+                letter2 = j;
+                }
+            }
         }
-        if(temp > max){
-            max = temp;
-            letter = i;
-        }
+        clean_board(x, y);
     }
     neighbours_counter(0);
     return letter;
@@ -262,22 +284,22 @@ void init_board() {
 // Propagate recursively a color from a square over another color
 int propagate(char color_covering, int x, int y, char color_covered) {
     set_cell_color(x, y, color_covering);
-    set_cell_flag(x, y, 1);
+    set_cell_visited(x, y, 1);
     int modifs = 1;
-    if ((x < BOARD_SIZE - 1) && !get_cell_flag(x+1, y)) {
+    if ((x < BOARD_SIZE - 1) && !get_cell_visited(x+1, y)) {
         if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
         modifs += (propagate(color_covering, x + 1, y, color_covered));
     }
-    if ((x > 0) && !get_cell_flag(x-1, y)) {
+    if ((x > 0) && !get_cell_visited(x-1, y)) {
         if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
         modifs += (propagate(color_covering, x - 1, y, color_covered));
     }
 
-    if ((y < BOARD_SIZE - 1) && !get_cell_flag(x, y+1)){
+    if ((y < BOARD_SIZE - 1) && !get_cell_visited(x, y+1)){
         if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
         modifs += (propagate(color_covering, x, y + 1, color_covered));
     }
-    if ((y > 0) && !get_cell_flag(x, y-1)) {
+    if ((y > 0) && !get_cell_visited(x, y-1)) {
         if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
         modifs += (propagate(color_covering, x, y - 1, color_covered));
     }
@@ -285,38 +307,44 @@ int propagate(char color_covering, int x, int y, char color_covered) {
 }
 
 // Propagate recursively a color from a square over another color
-int simulate_propagate(char color_covering, int x, int y, char color_covered) {
-    set_cell_flag(x, y, 1);
+int simulate_propagate(char color_covering, int x, int y, char color_covered, int turn) {
+    set_cell_visited(x, y, 1);
+    if (turn && !(get_cell_turn_visited(x,y)))set_cell_turn_visited(x, y, turn);
     int cell_owned = 1;
-    if ((x < BOARD_SIZE - 1) && !get_cell_flag(x+1, y)) {
-        if ((get_cell_color(x + 1, y) == color_covered) ||(get_cell_color(x + 1, y) == color_covering))
-        cell_owned += (simulate_propagate(color_covering, x + 1, y, color_covered));
-        else {
-            set_cell_flag(x+1, y, 1);
+    if ((x < BOARD_SIZE - 1) && !get_cell_visited(x+1, y)) {
+        if ( (get_cell_color(x + 1, y) == color_covered) || (get_cell_color(x + 1, y) == color_covering) || (get_cell_turn_visited(x+1,y)) ){
+        cell_owned += (simulate_propagate(color_covering, x + 1, y, color_covered, turn));
+        }
+        else if (!turn) {
+            set_cell_visited(x+1, y, 1);
             neighbours_counter(1);
         }
     }
-    if ((x > 0) && !get_cell_flag(x-1, y)) {
-        if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering))
-        cell_owned += (simulate_propagate(color_covering, x - 1, y, color_covered));
-        else {
-            set_cell_flag(x-1, y, 1);
+    if ((x > 0) && !get_cell_visited(x-1, y)) {
+        if ((get_cell_color(x - 1, y) == color_covered) || (get_cell_color(x - 1, y) == color_covering) || (get_cell_turn_visited(x-1,y)))
+        {
+            cell_owned += (simulate_propagate(color_covering, x - 1, y, color_covered, turn));
+        }
+        else if (!turn){
+            set_cell_visited(x-1, y, 1);
             neighbours_counter(1);
         }
     }
-    if ((y < BOARD_SIZE - 1) && !get_cell_flag(x, y+1)){
-        if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering))
-        cell_owned += (simulate_propagate(color_covering, x, y + 1, color_covered));
-        else {
-            set_cell_flag(x, y+1, 1);
+    if ((y < BOARD_SIZE - 1) && !get_cell_visited(x, y+1)){
+        if ((get_cell_color(x, y + 1) == color_covered) || (get_cell_color(x, y + 1) == color_covering) || (get_cell_turn_visited(x, y+1))){
+            cell_owned += (simulate_propagate(color_covering, x, y + 1, color_covered, turn));
+        }
+        else if (!turn) {
+            set_cell_visited(x, y+1, 1);
             neighbours_counter(1);
         }
     }
-    if ((y > 0) && !get_cell_flag(x, y-1)) {
-        if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering))
-        cell_owned += (simulate_propagate(color_covering, x, y - 1, color_covered));
-        else {
-            set_cell_flag(x, y-1, 1);
+    if ((y > 0) && !get_cell_visited(x, y-1)) {
+        if ((get_cell_color(x, y - 1) == color_covered) || (get_cell_color(x, y - 1) == color_covering) || (get_cell_turn_visited(x, y-1))){
+            cell_owned += (simulate_propagate(color_covering, x, y - 1, color_covered, turn));
+        }
+        else if (!turn) {
+            set_cell_visited(x, y-1, 1);
             neighbours_counter(1);
         }
     }
