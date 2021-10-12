@@ -624,10 +624,53 @@ void game_turn(player_t* player){
 int end_game() {
     for (int i = 0; i<2; i++) {
         if (get_player_cell_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
-            return 0;
+            return i - 1;
         }
     }
     return 1;
+}
+
+
+/** Fight between AIs implementation */
+void init_game_AI(int ai_type1, int ai_type2) {
+    for (int i = 0; i < 2; i++) {
+        int x_init = i * (BOARD_SIZE - 1);
+        int y_init = (1 - i) * (BOARD_SIZE - 1);
+
+        if (i == 0){
+            set_player(i, add_player(48 + i, ai_type1, x_init, y_init));
+        } else {
+            set_player(i, add_player(48 + i, ai_type2, x_init, y_init));
+        }
+
+    }
+    init_board();
+}
+
+void game_turn_AI(player_t* player){
+    char letter = ai_move(player);
+    update_board(letter, player);
+}
+
+/** Tournament implementation */
+int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
+    int victory_1 = 0;
+
+    for (int i = 0; i < nb_games; i++) {
+        init_game_AI(ai_type1, ai_type2);
+
+        int turn = 0;
+        while(end_game() == 1){
+           game_turn_AI(get_player(turn % 2));
+           turn++;
+        }
+
+        if (end_game()) {
+            victory_1 += 1;
+        }
+    }
+
+    return victory_1;
 }
 
 

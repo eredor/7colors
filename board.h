@@ -267,4 +267,11 @@ void game_turn(player_t* player);
  */
 int  end_game();
 
+/** Fight between AIs implementation */
+void init_game_AI(int ai_type1, int ai_type2);
+
+void game_turn_AI(player_t* player);
+
+int tournament_AI(int ai_type1, int ai_type2, int nb_games);
+
 #endif
