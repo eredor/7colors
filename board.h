@@ -31,6 +31,14 @@ typedef struct cell cell_t;
  */
 cell_t* create_cell(char color);
 
+
+/**
+ * @param cell : a cell
+ * 
+ * Free the memory
+ */ 
+void delete_cell(cell_t* cell);
+
 /** 
  * @param x : the coordinate x of the cell
  * @param y : the coordinate y of the cell 
@@ -185,7 +193,7 @@ void init_board();
  * @return : the number of cells owned by the player
  * 
  */
-int simulate_propagate(char color, int x, int y, char letter, int ai, int turn);
+int sim_propagate(char color, int x, int y, char letter, int ai, int turn);
 
 /**
  * @param color : the color of a player

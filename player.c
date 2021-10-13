@@ -26,6 +26,10 @@ player_t* add_player(char symbol, int ai_type, int x_init, int y_init){
     return res;
 }
 
+void delete_player(player_t* player){
+    free(player);
+}
+
 /** Getters and setters for player*/
 char get_player_symbol(player_t* player)
 {

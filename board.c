@@ -66,6 +66,15 @@ cell_t* create_cell(char color){
     return res;
 }
 
+/**
+ * @param cell : a cell
+ * 
+ * Free the memory
+ */ 
+void delete_cell(cell_t* cell){
+    free(cell);
+}
+
 /** 
  * @param x : the coordinate x of the cell
  * @param y : the coordinate y of the cell 
@@ -209,12 +218,12 @@ char alea_strategy(player_t* player)
 {
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
+    char color = get_player_symbol(player);
     char letter = 'A' + (rand() % NB_COLORS);
-    while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter, 1,0) == get_player_cell_owned(player)) {
+    while(sim_propagate(color, x, y, letter, 1,0) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
-    clean_board(x, y);
     return letter;
 }
 
@@ -227,14 +236,15 @@ char alea_strategy(player_t* player)
 char glouton_strategy(player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
+    int color = get_player_symbol(player);
     char letter;
-    int max = 0;
-    int temp;
+    int max_cells = 0;
+    int temp_cells;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 2, 0);
+        temp_cells = sim_propagate(color, x, y, i, 2, 0);
         clean_board(x, y);
-        if(temp > max){
-            max = temp;
+        if(temp_cells > max_cells){
+            max_cells = temp_cells;
             letter = i;
         }
     }
@@ -249,40 +259,25 @@ char glouton_strategy(player_t* player){
 char hegemonique_strategy(player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
+    int color = get_player_symbol(player);
     char letter;
-    int max = 0;
-    int temp, cells; 
-    int max_cells = get_player_cell_owned(player) ;
+    int max_perim = 0;
+    int min_cells = get_player_cell_owned(player);
+    int temp_perim, temp_cells; 
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 3, 0);
-        temp = neighbours_counter(1) - 1;
+        temp_cells = sim_propagate(color, x, y, i, 3, 0);
+        temp_perim = neighbours_counter(1) - 1;
+        //printf("Letter %c , Perim %d , Cells %d \n",i,temp_perim, temp_cells);
         neighbours_counter(0);
         clean_board(x, y);
-        if((temp > max) && (cells > max_cells)){
-            max = temp;
-            max_cells = cells;
+        if((temp_perim > max_perim) && (temp_cells > min_cells)){
+            max_perim = temp_perim;
             letter = i;
         }
     }
     return letter;
 }
 
-
-char strategy(player_t* player){
-    int x = get_player_init_x(player);
-    int y = get_player_init_y(player);
-    int ai = get_player_ai_type(player);
-    char letter;
-    int temp_cells;
-    int max_cells = get_player_cell_owned(player);
-    int neighbours = 0;
-        for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-            temp_cells = simulate_propagate(get_player_symbol(player), x, y, i, ai, 0);
-            clean_board(x, y);
-        }
-
-    return letter;
-}
 
 /**
  * Counter for the hegemonique_strategy
@@ -327,24 +322,24 @@ int is_landlocked(int x, int y, char color)  {
 char glouton_prevoyant_strategy(player_t* player){
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
+    char color = get_player_symbol(player);
     char letter;
-    int max = 0;
-    int temp, temp2;
+    int max_cells = 0;
+    int temp_cells_1, temp_cells_2;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
-        temp = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 4, 1);
-        if(temp != get_player_cell_owned(player)){
+        temp_cells_1 = sim_propagate(color, x, y, i, 4, 1);
+        if(temp_cells_1 != get_player_cell_owned(player)){
             for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
-                temp2 = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), j, 4, 2);
+                temp_cells_2 = sim_propagate(color, x, y, j, 4, 2);
                 clean_board_turn_visited(x, y, 2);
-                if(temp2 > max){
-                max = temp2;
-                letter = i;
+                if(temp_cells_2 > max_cells){
+                    max_cells = temp_cells_2;
+                    letter = i;
                 }
             }
         }
         clean_board(x, y);
     }
-    neighbours_counter(0);
     return letter;
 }
 
@@ -422,13 +417,13 @@ void init_board() {
  * @return : the number of cells owned by the player
  * 
  */
-int simulate_propagate(char color, int x, int y, char letter, int ai, int turn) {
+int sim_propagate(char color, int x, int y, char letter, int ai, int turn) {
     set_cell_visited(x, y, 1);
     if (turn && !(get_cell_turn_visited(x,y))) set_cell_turn_visited(x, y, turn);
     int cells_owned = 1;
     if ((x < BOARD_SIZE - 1) && !get_cell_visited(x+1, y)) {
         if ((get_cell_color(x+1, y) == color) || (get_cell_color(x+1, y) == letter) || (get_cell_turn_visited(x+1, y))){
-            cells_owned += (simulate_propagate(color, x+1, y, letter, ai, turn));
+            cells_owned += (sim_propagate(color, x+1, y, letter, ai, turn));
         }
         else if (ai == 3){
             set_cell_visited(x+1, y, 1);
@@ -438,7 +433,7 @@ int simulate_propagate(char color, int x, int y, char letter, int ai, int turn) 
     }
     if ((x > 0) && !get_cell_visited(x-1, y)) {
         if ((get_cell_color(x-1, y) == color) || (get_cell_color(x-1, y) == letter) || (get_cell_turn_visited(x-1, y))){
-            cells_owned += (simulate_propagate(color, x-1, y, letter, ai, turn));
+            cells_owned += (sim_propagate(color, x-1, y, letter, ai, turn));
         }
         else if (ai == 3){
             set_cell_visited(x-1, y, 1);
@@ -448,7 +443,7 @@ int simulate_propagate(char color, int x, int y, char letter, int ai, int turn) 
     }
     if ((y < BOARD_SIZE - 1) && !get_cell_visited(x, y+1)){
         if ((get_cell_color(x, y+1) == color) || (get_cell_color(x, y+1) == letter) || (get_cell_turn_visited(x, y+1))){
-            cells_owned += (simulate_propagate(color, x, y+1, letter, ai, turn));
+            cells_owned += (sim_propagate(color, x, y+1, letter, ai, turn));
         }
         else if (ai == 3){
             set_cell_visited(x, y+1, 1);
@@ -458,7 +453,7 @@ int simulate_propagate(char color, int x, int y, char letter, int ai, int turn) 
     }
     if ((y > 0) && !get_cell_visited(x, y-1)) {
         if ((get_cell_color(x, y-1) == color) || (get_cell_color(x, y-1) == letter)|| (get_cell_turn_visited(x, y-1))){
-            cells_owned += (simulate_propagate(color, x, y-1, letter, ai, turn));
+            cells_owned += (sim_propagate(color, x, y-1, letter, ai, turn));
         }
         else if (ai == 3){
             set_cell_visited(x, y-1, 1);
@@ -574,11 +569,10 @@ void init_game_AI(int ai_type1, int ai_type2) {
         int y_init = (1 - i) * (BOARD_SIZE - 1);
 
         if (i == 0){
-            set_player(i, add_player(48 + i, ai_type1, x_init, y_init));
+            set_player(i, add_player('0', ai_type1, x_init, y_init));
         } else {
-            set_player(i, add_player(48 + i, ai_type2, x_init, y_init));
+            set_player(i, add_player('1', ai_type2, x_init, y_init));
         }
-
     }
     init_board();
 }
@@ -625,28 +619,151 @@ int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
 /************ The tests **************/
 
 /* Tests that the initialization works */
-SUT_TEST(init_cell)
+SUT_TEST(get_player_symbol)
 {
-   char c = get_cell_color(5, 5);
-   SUT_CHAR_EQUAL(c, '\0', "Creating the board does not initialize the cells to '\\0' but to '%c'", c);
+   player_t* player = add_player('+', 0, 10, 1);
+   char c = get_player_symbol(player);
+   SUT_CHAR_EQUAL(c, '+', "The player symbol should be '+' but is '%c'", c);
+   delete_player(player);
 
    return 1;
 }
 
+SUT_TEST(get_player_ai_type)
+{
+   player_t* player = add_player('+', 0, 10, 1);
+   int i = get_player_ai_type(player);
+   SUT_CHAR_EQUAL(i, 0, "The player ai should be 0 but is '%d'", i);
+   delete_player(player);
+
+   return 1;
+}
+
+SUT_TEST(get_player_init_x)
+{
+   player_t* player = add_player('+', 0, 10, 1);
+   int i = get_player_init_x(player);
+   SUT_CHAR_EQUAL(i, 10, "The player ai should be 10 but is '%d'", i);
+   delete_player(player);
+
+   return 1;
+}
+
+SUT_TEST(get_player_init_y)
+{
+   player_t* player = add_player('+', 0, 10, 1);
+   int i = get_player_init_y(player);
+   SUT_CHAR_EQUAL(i, 1, "The player ai should be 1 but is '%d'", i);
+   delete_player(player);
+
+   return 1;
+}
+
+SUT_TEST(get_player_cell_owned)
+{
+   player_t* player = add_player('+', 0, 10, 1);
+   int i = get_player_cell_owned(player);
+   SUT_CHAR_EQUAL(i, 1, "The player symbol should be 1 but is '%d'", i);
+
+    delete_player(player);
+   return 1;
+}
+
+SUT_TEST(set_player_cell_owned)
+{
+   player_t* player = add_player('+', 0, 10, 1);
+   set_player_cell_owned(player, 124);
+   int i = get_player_cell_owned(player);
+   SUT_CHAR_EQUAL(i, 124, "The player symbol should be 124 but is '%d'", i);
+
+    delete_player(player);
+   return 1;
+}
+
 /* Tests that the get_cell and set_cell work */
-SUT_TEST(getset_cell)
+SUT_TEST(get_cell_color)
+{
+    cell_t* cell = create_cell('A');
+    board[5*BOARD_SIZE + 5] = cell;
+   char c = get_cell_color(5, 5);
+   SUT_CHAR_EQUAL(c, 'A', "The cell color should be 'A' but is '%c'", c);
+   free(cell);
+
+   return 1;
+}
+
+SUT_TEST(getset_cell_color)
 {
    char c;
-
+   cell_t* cell = create_cell('C');
+    board[5*BOARD_SIZE + 5] = cell;
    set_cell_color(5, 5, 'A');
    c = get_cell_color(5, 5);
    SUT_CHAR_EQUAL(c, 'A', "Setting a cell to 'A' leads to '%c' as a value instead", c);
+    free(cell);
+   return 1;
+}
+
+SUT_TEST(get_cell_visited)
+{
+    cell_t* cell = create_cell('A');
+    board[5*BOARD_SIZE + 5] = cell;
+   int i = get_cell_visited(5, 5);
+   SUT_CHAR_EQUAL(i, 0, "The cell visited should be 0 but is '%d'", i);
+   free(cell);
+
+   return 1;
+}
+
+SUT_TEST(getset_cell_visited)
+{
+    cell_t* cell = create_cell('A');
+    board[5*BOARD_SIZE + 5] = cell;
+    set_cell_visited(5, 5, 1);
+   int i = get_cell_visited(5, 5);
+   SUT_CHAR_EQUAL(i, 1, "The cell visited should be 1 but is '%d'", i);
+   free(cell);
+
+   return 1;
+}
+
+
+SUT_TEST(get_cell_turn_visited)
+{
+    cell_t* cell = create_cell('A');
+    board[5*BOARD_SIZE + 5] = cell;
+   int i = get_cell_turn_visited(5, 5);
+   SUT_CHAR_EQUAL(i, 0, "The cell turn_visited should be 0 but is '%d'", i);
+   free(cell);
+
+   return 1;
+}
+
+SUT_TEST(getset_cell_turn_visited)
+{
+    cell_t* cell = create_cell('A');
+    board[5*BOARD_SIZE + 5] = cell;
+    set_cell_turn_visited(5, 5, 3);
+   int i = get_cell_turn_visited(5, 5);
+   SUT_CHAR_EQUAL(i, 3, "The cell turn_visited should be 3 but is '%d'", i);
+   free(cell);
 
    return 1;
 }
 
 SUT_TEST_SUITE(board) = {
-    SUT_TEST_SUITE_ADD(init_cell),
-    SUT_TEST_SUITE_ADD(getset_cell),
+    SUT_TEST_SUITE_ADD(get_player_symbol),
+    SUT_TEST_SUITE_ADD(get_player_ai_type),
+    SUT_TEST_SUITE_ADD(get_player_init_x),
+    SUT_TEST_SUITE_ADD(get_player_init_y),
+    SUT_TEST_SUITE_ADD(get_player_cell_owned),
+    SUT_TEST_SUITE_ADD(set_player_cell_owned),
+
+    SUT_TEST_SUITE_ADD(get_cell_color),
+    SUT_TEST_SUITE_ADD(getset_cell_color),
+    SUT_TEST_SUITE_ADD(get_cell_visited),
+    SUT_TEST_SUITE_ADD(getset_cell_visited),
+    SUT_TEST_SUITE_ADD(get_cell_turn_visited),
+    SUT_TEST_SUITE_ADD(getset_cell_turn_visited),
     SUT_TEST_SUITE_END
 };
