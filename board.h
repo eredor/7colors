@@ -267,11 +267,30 @@ void game_turn(player_t* player);
  */
 int  end_game();
 
-/** Fight between AIs implementation */
+/** 
+ * @param ai_type1 : the ai type of player 1
+ * @param ai_type2 : the ai type of player 2 
+ * 
+ * Fight between AIs implementation 
+ */
 void init_game_AI(int ai_type1, int ai_type2);
 
+/**
+ * @param player : the player whose turn it is 
+ * 
+ * Play a turn of the game
+ */
 void game_turn_AI(player_t* player);
 
+/** 
+ * @param ai_type1 : the ai type of player 1
+ * @param ai_type2 : the ai type of player 2
+ * @param nb_games : number of games played
+ * 
+ * Tournament implementation 
+ * 
+ * @return : number of victory of player 1
+ */
 int tournament_AI(int ai_type1, int ai_type2, int nb_games);
 
 #endif

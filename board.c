@@ -50,6 +50,9 @@ struct cell {
     int turn_visited;
 };
 
+/** Represent the actual current board game */
+cell_t* board[BOARD_SIZE * BOARD_SIZE];
+
 /** 
  * @param color : the color of the cell
  * 
@@ -132,10 +135,6 @@ void set_cell_turn_visited(int x, int y, int turn)
     board[y * BOARD_SIZE + x]->turn_visited = turn;
 }
 
-/** Represent the actual current board game */
-cell_t* board[BOARD_SIZE * BOARD_SIZE];
-
-
 /** Prints the current state of the board on screen
  *
  * It would be nicer to do this with ncurse or even SFML or SDL,
@@ -210,14 +209,12 @@ char alea_strategy(player_t* player)
 {
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
-    srand(time(NULL));
     char letter = 'A' + (rand() % NB_COLORS);
     while(simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), letter, 1,0) == get_player_cell_owned(player)) {
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
     clean_board(x, y);
-    neighbours_counter(0);
     return letter;
 }
 
@@ -241,7 +238,6 @@ char glouton_strategy(player_t* player){
             letter = i;
         }
     }
-    neighbours_counter(0);
     return letter;
 }
 
@@ -255,17 +251,36 @@ char hegemonique_strategy(player_t* player){
     int y = get_player_init_y(player);
     char letter;
     int max = 0;
-    int temp, cells;
+    int temp, cells; 
+    int max_cells = get_player_cell_owned(player) ;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         cells = simulate_propagate(get_player_symbol(player), get_player_init_x(player), get_player_init_y(player), i, 3, 0);
         temp = neighbours_counter(1) - 1;
         neighbours_counter(0);
         clean_board(x, y);
-        if((temp > max) && (cells > get_player_cell_owned(player))){
+        if((temp > max) && (cells > max_cells)){
             max = temp;
+            max_cells = cells;
             letter = i;
         }
     }
+    return letter;
+}
+
+
+char strategy(player_t* player){
+    int x = get_player_init_x(player);
+    int y = get_player_init_y(player);
+    int ai = get_player_ai_type(player);
+    char letter;
+    int temp_cells;
+    int max_cells = get_player_cell_owned(player);
+    int neighbours = 0;
+        for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
+            temp_cells = simulate_propagate(get_player_symbol(player), x, y, i, ai, 0);
+            clean_board(x, y);
+        }
+
     return letter;
 }
 
@@ -362,6 +377,7 @@ char ai_move(player_t* player)
  * Initialize the board
 */
 void init_game(){
+    srand(time(NULL)); // initialize random seed
     char symbol, c;
     int ai_type;
     for (int i = 0; i<2; i++) {
@@ -384,7 +400,6 @@ void init_game(){
  * Initialize the board 
  */
 void init_board() {
-    srand(time(NULL)); // initialize random seed
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
              board[i * BOARD_SIZE + j] = create_cell((rand() % NB_COLORS) + 'A');
@@ -409,136 +424,51 @@ void init_board() {
  */
 int simulate_propagate(char color, int x, int y, char letter, int ai, int turn) {
     set_cell_visited(x, y, 1);
-    if (turn && !(get_cell_turn_visited(x,y)))set_cell_turn_visited(x, y, turn);
+    if (turn && !(get_cell_turn_visited(x,y))) set_cell_turn_visited(x, y, turn);
     int cells_owned = 1;
     if ((x < BOARD_SIZE - 1) && !get_cell_visited(x+1, y)) {
-        switch (ai) {
-            case 1: cells_owned += simulate_alea(color, x+1, y, letter, ai, turn);
-                    break;
-            case 2: cells_owned += simulate_alea(color, x+1, y, letter, ai, turn);
-                    break;
-            case 3: cells_owned += simulate_hegemonique(color, x+1, y, letter, ai, turn);
-                    break;
-            case 4: cells_owned += simulate_glouton(color, x+1, y, letter, ai, turn);
-                    break;
-        }   
+        if ((get_cell_color(x+1, y) == color) || (get_cell_color(x+1, y) == letter) || (get_cell_turn_visited(x+1, y))){
+            cells_owned += (simulate_propagate(color, x+1, y, letter, ai, turn));
+        }
+        else if (ai == 3){
+            set_cell_visited(x+1, y, 1);
+            if(!is_landlocked(x+1,y,color))
+            neighbours_counter(1);
+        }
     }
     if ((x > 0) && !get_cell_visited(x-1, y)) {
-        switch (ai) {
-            case 1: cells_owned += simulate_alea(color, x-1, y, letter, ai, turn);
-                    break;
-            case 2: cells_owned += simulate_alea(color, x-1, y, letter, ai, turn);
-                    break;
-            case 3: cells_owned += simulate_hegemonique(color, x-1, y, letter, ai, turn);
-                    break;
-            case 4: cells_owned += simulate_glouton(color, x-1, y, letter, ai, turn);
-                    break;
-        } 
+        if ((get_cell_color(x-1, y) == color) || (get_cell_color(x-1, y) == letter) || (get_cell_turn_visited(x-1, y))){
+            cells_owned += (simulate_propagate(color, x-1, y, letter, ai, turn));
+        }
+        else if (ai == 3){
+            set_cell_visited(x-1, y, 1);
+            if(!is_landlocked(x-1,y,color))
+            neighbours_counter(1);
+        }
     }
     if ((y < BOARD_SIZE - 1) && !get_cell_visited(x, y+1)){
-        switch (ai) {
-            case 1: cells_owned += simulate_alea(color, x, y+1, letter, ai, turn);
-                    break;
-            case 2: cells_owned += simulate_alea(color, x, y+1, letter, ai, turn);
-                    break;
-            case 3: cells_owned += simulate_hegemonique(color, x, y+1, letter, ai, turn);
-                    break;
-            case 4: cells_owned += simulate_glouton(color, x, y+1, letter, ai, turn);
-                    break;
-        } 
+        if ((get_cell_color(x, y+1) == color) || (get_cell_color(x, y+1) == letter) || (get_cell_turn_visited(x, y+1))){
+            cells_owned += (simulate_propagate(color, x, y+1, letter, ai, turn));
+        }
+        else if (ai == 3){
+            set_cell_visited(x, y+1, 1);
+            if(!is_landlocked(x,y+1,color))
+            neighbours_counter(1);
+        }
     }
     if ((y > 0) && !get_cell_visited(x, y-1)) {
-        switch (ai) {
-            case 1: cells_owned += simulate_alea(color, x, y-1, letter, ai, turn);
-                    break;
-            case 2: cells_owned += simulate_alea(color, x, y-1, letter, ai, turn);
-                    break;
-            case 3: cells_owned += simulate_hegemonique(color, x, y-1, letter, ai, turn);
-                    break;
-            case 4: cells_owned += simulate_glouton(color, x, y-1, letter, ai, turn);
-                    break;
-        } 
-
+        if ((get_cell_color(x, y-1) == color) || (get_cell_color(x, y-1) == letter)|| (get_cell_turn_visited(x, y-1))){
+            cells_owned += (simulate_propagate(color, x, y-1, letter, ai, turn));
+        }
+        else if (ai == 3){
+            set_cell_visited(x, y-1, 1);
+            if(!is_landlocked(x,y-1,color))
+            neighbours_counter(1);
+        }
     }
     return cells_owned;
 }
 
-
-/**
- * @param color : the color of a player
- * @param x : the strating coordinate x of the player 
- * @param y : the strating coordinate y of the player 
- * @param letter : the letter the player played
- * @param ai : the type of ai that is the player
- * @param turn : the turn to simulate
- * 
- * Propagate recursively a color from a cell over another color
- * 
- * @return : the number of cells owned by the player
- * 
- */
-int simulate_alea(char color, int x, int y, char letter, int ai, int turn) {
-    int cells_owned = 0;
-        if ((get_cell_color(x, y) == color) || (get_cell_color(x, y) == letter)){
-            cells_owned += (simulate_propagate(color, x, y, letter, ai, turn));
-        }
-   return cells_owned;
-}
-
-
-/**
- * @param color : the color of a player
- * @param x : the strating coordinate x of the player 
- * @param y : the strating coordinate y of the player 
- * @param letter : the letter the player played
- * @param ai : the type of ai that is the player
- * @param turn : the turn to simulate
- * 
- * Propagate recursively a color from a cell over another color
- * 
- * @return : the number of cells owned by the player
- * 
- */
-int simulate_hegemonique(char color, int x, int y, char letter, int ai, int turn) {
-    int cells_owned = 0;
-        if ((get_cell_color(x, y) == letter) || (get_cell_color(x, y) == color)){
-            cells_owned += (simulate_propagate(color, x, y, letter, ai, turn));
-        }
-        else {
-            set_cell_visited(x, y, 1);
-            if(!is_landlocked(x,y,color))
-            neighbours_counter(1);
-        }
-
-   return cells_owned;
-}
-
-
-/**
- * @param color : the color of a player
- * @param x : the strating coordinate x of the player 
- * @param y : the strating coordinate y of the player 
- * @param letter : the letter the player played
- * @param ai : the type of ai that is the player
- * @param turn : the turn to simulate
- * 
- * Propagate recursively a color from a cell over another color
- * 
- * @return : the number of cells owned by the player
- * 
- */
-int simulate_glouton(char color, int x, int y, char letter, int ai, int turn) {
-    int cells_owned = 0;
-        if ((get_cell_color(x, y) == letter) || (get_cell_color(x, y) == color) || (get_cell_turn_visited(x, y))){
-            cells_owned += (simulate_propagate(color, x, y, letter, ai, turn));
-        }
-        else {
-            set_cells_visited(x, y, 1);
-            neighbours_counter(1);
-        }
-
-   return cells_owned;
-}
 
 /**
  * @param color : the color of a player
@@ -619,19 +549,25 @@ void game_turn(player_t* player){
 /** 
  * Check if the game should end 
  * 
- * @return : 1 if the game end
+ * @return : 0 if the game continue
  */
 int end_game() {
     for (int i = 0; i<2; i++) {
         if (get_player_cell_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
-            return i - 1;
+            //printf("Joueur %d a gagné ! \n", i+1);
+            return i + 1;
         }
     }
-    return 1;
+    return 0;
 }
 
 
-/** Fight between AIs implementation */
+/** 
+ * @param ai_type1 : the ai type of player 1
+ * @param ai_type2 : the ai type of player 2 
+ * 
+ * Fight between AIs implementation 
+ */
 void init_game_AI(int ai_type1, int ai_type2) {
     for (int i = 0; i < 2; i++) {
         int x_init = i * (BOARD_SIZE - 1);
@@ -647,29 +583,41 @@ void init_game_AI(int ai_type1, int ai_type2) {
     init_board();
 }
 
+
+/**
+ * @param player : the player whose turn it is 
+ * 
+ * Play a turn of the game
+ */
 void game_turn_AI(player_t* player){
     char letter = ai_move(player);
     update_board(letter, player);
 }
 
-/** Tournament implementation */
+/** 
+ * @param ai_type1 : the ai type of player 1
+ * @param ai_type2 : the ai type of player 2
+ * @param nb_games : number of games played
+ * 
+ * Tournament implementation 
+ * 
+ * @return : number of victory of player 1
+ */
 int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
+    srand(time(NULL)); // initialize random seed
     int victory_1 = 0;
 
     for (int i = 0; i < nb_games; i++) {
         init_game_AI(ai_type1, ai_type2);
 
         int turn = 0;
-        while(end_game() == 1){
+        while(!end_game()){
            game_turn_AI(get_player(turn % 2));
            turn++;
         }
 
-        if (end_game()) {
-            victory_1 += 1;
-        }
+        if(end_game() == 1) victory_1 += 1;
     }
-
     return victory_1;
 }
 
