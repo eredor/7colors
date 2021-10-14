@@ -8,7 +8,6 @@
 #include "player.h" /* Import player module */
 #include "coordinates.h" /* Import coordinates module */
 
-
 /* Note: This template comes with several global definitions. For now.
  *
  * Such globals are usually discouraged, but having a few of them is OK in a C program.
@@ -19,8 +18,9 @@
  * Plus, this path often leads to simpler code, that is easier to test.
  */
 
-/* We want a 30x30 board game by default */
-#define BOARD_SIZE 30
+/* We want a 30x30 board game by default 
+For the test we used a 5x5 board*/
+#define BOARD_SIZE 5
 /* SPOT for the number of colors */
 #define NB_COLORS 7
 
@@ -52,7 +52,7 @@ struct cell {
 
 /** Represent the actual current board game */
 cell_t* board[BOARD_SIZE * BOARD_SIZE];
-
+cell_t* board_test[BOARD_SIZE * BOARD_SIZE];
 /** 
  * @param color : the color of the cell
  * 
@@ -224,6 +224,7 @@ char alea_strategy(player_t* player)
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
+    clean_board(x, y);
     return letter;
 }
 
@@ -267,7 +268,6 @@ char hegemonique_strategy(player_t* player){
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         temp_cells = sim_propagate(color, x, y, i, 3, 0);
         temp_perim = neighbours_counter(1) - 1;
-        //printf("Letter %c , Perim %d , Cells %d \n",i,temp_perim, temp_cells);
         neighbours_counter(0);
         clean_board(x, y);
         if((temp_perim > max_perim) && (temp_cells > min_cells)){
@@ -549,7 +549,6 @@ void game_turn(player_t* player){
 int end_game() {
     for (int i = 0; i<2; i++) {
         if (get_player_cell_owned(get_player(i)) * 2 > BOARD_SIZE * BOARD_SIZE) {
-            //printf("Joueur %d a gagné ! \n", i+1);
             return i + 1;
         }
     }
@@ -621,7 +620,7 @@ int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
 /* Tests that the initialization works */
 SUT_TEST(get_player_symbol)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    char c = get_player_symbol(player);
    SUT_CHAR_EQUAL(c, '+', "The player symbol should be '+' but is '%c'", c);
    delete_player(player);
@@ -631,7 +630,7 @@ SUT_TEST(get_player_symbol)
 
 SUT_TEST(get_player_ai_type)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_ai_type(player);
    SUT_CHAR_EQUAL(i, 0, "The player ai should be 0 but is '%d'", i);
    delete_player(player);
@@ -641,9 +640,9 @@ SUT_TEST(get_player_ai_type)
 
 SUT_TEST(get_player_init_x)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_init_x(player);
-   SUT_CHAR_EQUAL(i, 10, "The player ai should be 10 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 3, "The player ai should be 3 but is '%d'", i);
    delete_player(player);
 
    return 1;
@@ -651,7 +650,7 @@ SUT_TEST(get_player_init_x)
 
 SUT_TEST(get_player_init_y)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_init_y(player);
    SUT_CHAR_EQUAL(i, 1, "The player ai should be 1 but is '%d'", i);
    delete_player(player);
@@ -661,7 +660,7 @@ SUT_TEST(get_player_init_y)
 
 SUT_TEST(get_player_cell_owned)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_cell_owned(player);
    SUT_CHAR_EQUAL(i, 1, "The player symbol should be 1 but is '%d'", i);
 
@@ -671,7 +670,7 @@ SUT_TEST(get_player_cell_owned)
 
 SUT_TEST(set_player_cell_owned)
 {
-   player_t* player = add_player('+', 0, 10, 1);
+   player_t* player = add_player('+', 0, 3, 1);
    set_player_cell_owned(player, 124);
    int i = get_player_cell_owned(player);
    SUT_CHAR_EQUAL(i, 124, "The player symbol should be 124 but is '%d'", i);
@@ -684,10 +683,10 @@ SUT_TEST(set_player_cell_owned)
 SUT_TEST(get_cell_color)
 {
     cell_t* cell = create_cell('A');
-    board[5*BOARD_SIZE + 5] = cell;
-   char c = get_cell_color(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+   char c = get_cell_color(2, 2);
    SUT_CHAR_EQUAL(c, 'A', "The cell color should be 'A' but is '%c'", c);
-   free(cell);
+   delete_cell(cell);
 
    return 1;
 }
@@ -696,21 +695,21 @@ SUT_TEST(getset_cell_color)
 {
    char c;
    cell_t* cell = create_cell('C');
-    board[5*BOARD_SIZE + 5] = cell;
-   set_cell_color(5, 5, 'A');
-   c = get_cell_color(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+   set_cell_color(2, 2, 'A');
+   c = get_cell_color(2, 2);
    SUT_CHAR_EQUAL(c, 'A', "Setting a cell to 'A' leads to '%c' as a value instead", c);
-    free(cell);
+    delete_cell(cell);
    return 1;
 }
 
 SUT_TEST(get_cell_visited)
 {
     cell_t* cell = create_cell('A');
-    board[5*BOARD_SIZE + 5] = cell;
-   int i = get_cell_visited(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+   int i = get_cell_visited(2, 2);
    SUT_CHAR_EQUAL(i, 0, "The cell visited should be 0 but is '%d'", i);
-   free(cell);
+   delete_cell(cell);
 
    return 1;
 }
@@ -718,11 +717,11 @@ SUT_TEST(get_cell_visited)
 SUT_TEST(getset_cell_visited)
 {
     cell_t* cell = create_cell('A');
-    board[5*BOARD_SIZE + 5] = cell;
-    set_cell_visited(5, 5, 1);
-   int i = get_cell_visited(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+    set_cell_visited(2, 2, 1);
+   int i = get_cell_visited(2, 2);
    SUT_CHAR_EQUAL(i, 1, "The cell visited should be 1 but is '%d'", i);
-   free(cell);
+   delete_cell(cell);
 
    return 1;
 }
@@ -731,10 +730,10 @@ SUT_TEST(getset_cell_visited)
 SUT_TEST(get_cell_turn_visited)
 {
     cell_t* cell = create_cell('A');
-    board[5*BOARD_SIZE + 5] = cell;
-   int i = get_cell_turn_visited(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+   int i = get_cell_turn_visited(2, 2);
    SUT_CHAR_EQUAL(i, 0, "The cell turn_visited should be 0 but is '%d'", i);
-   free(cell);
+   delete_cell(cell);
 
    return 1;
 }
@@ -742,16 +741,296 @@ SUT_TEST(get_cell_turn_visited)
 SUT_TEST(getset_cell_turn_visited)
 {
     cell_t* cell = create_cell('A');
-    board[5*BOARD_SIZE + 5] = cell;
-    set_cell_turn_visited(5, 5, 3);
-   int i = get_cell_turn_visited(5, 5);
+    board[2*BOARD_SIZE + 2] = cell;
+    set_cell_turn_visited(2, 2, 3);
+   int i = get_cell_turn_visited(2, 2);
    SUT_CHAR_EQUAL(i, 3, "The cell turn_visited should be 3 but is '%d'", i);
-   free(cell);
+   delete_cell(cell);
 
    return 1;
 }
 
+SUT_TEST(init_board)
+{
+    srand(time(NULL)); 
+    set_player(0, add_player('+', 2, 0, BOARD_SIZE - 1));
+    set_player(1, add_player('-', 3, BOARD_SIZE - 1, 0));
+    init_board();
+    char c1 = get_cell_color(0, BOARD_SIZE -1);
+    char c2 = get_cell_color(BOARD_SIZE -1, 0);
+   SUT_CHAR_EQUAL(c1, '+', "The cell color should be '+' but is '%s'", c1);
+   SUT_CHAR_EQUAL(c2, '-', "The cell color should be '-' but is '%s'", c2);
+
+   return 1;
+}
+
+SUT_TEST(clean_board){
+    // Using the board and players initialized in SUT_TEST(init_board)
+    set_cell_color(0, 0,'A'); set_cell_color(0, 1,'B'); set_cell_color(0, 2,'F'); set_cell_color(0, 3,'C'); set_cell_color(0, 4,'+');
+    set_cell_color(1, 0,'F'); set_cell_color(1, 1,'F'); set_cell_color(1, 2,'F'); set_cell_color(1, 3,'G'); set_cell_color(1, 4,'D');
+    set_cell_color(2, 0,'C'); set_cell_color(2, 1,'G'); set_cell_color(2, 2,'B'); set_cell_color(2, 3,'A'); set_cell_color(2, 4,'D');
+    set_cell_color(3, 0,'B'); set_cell_color(3, 1,'E'); set_cell_color(3, 2,'A'); set_cell_color(3, 3,'E'); set_cell_color(3, 4,'C');
+    set_cell_color(4, 0,'-'); set_cell_color(4, 1,'D'); set_cell_color(4, 2,'A'); set_cell_color(4, 3,'C'); set_cell_color(4, 4,'B');
+
+    char colors[25] = {'A', 'B', 'F', 'C', '+',
+                        'F', 'F', 'F', 'G', 'D',
+                        'C', 'G', 'B', 'A', 'D',
+                        'B', 'E', 'A', 'E', 'C',
+                        '-', 'D', 'A', 'C', 'B'};
+
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            board_test[j*BOARD_SIZE + i] = create_cell(colors[i*BOARD_SIZE + j]);
+        }
+    }
+
+    set_cell_visited(0, 4, 1);
+    set_cell_visited(1, 4, 1);
+    set_cell_visited(2, 4, 1);
+    set_cell_visited(3, 4, 1);
+    set_cell_visited(2, 3, 1);
+    set_cell_visited(1, 3, 1);
+    set_cell_visited(0, 3, 1);
+
+    set_cell_turn_visited(0, 4, 1);
+    set_cell_turn_visited(1, 4, 2);
+    set_cell_turn_visited(2, 4, 3);
+    set_cell_turn_visited(3, 4, 1);
+    set_cell_turn_visited(2, 3, 4);
+
+    clean_board(0,4);
+
+    int turn, visited, expected_turn, expected_visited;
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            visited = get_cell_visited(i, j);
+            turn = get_cell_turn_visited(i, j);
+            expected_visited = board_test[j*BOARD_SIZE + i] -> visited;
+            expected_turn = board_test[j*BOARD_SIZE + i] -> turn_visited;
+            SUT_INT_EQUAL(visited, expected_visited, "The cell visited should be %d but is %d", expected_visited, visited);
+            SUT_INT_EQUAL(turn, expected_turn, "The cell visited should be %d but is %d", expected_turn, turn);
+        }
+    }
+
+    return 1;
+}
+
+SUT_TEST(clean_board_turn_visited){
+    set_cell_visited(4, 0, 1);
+    set_cell_visited(4, 1, 1);
+    set_cell_visited(4, 2, 1);
+    set_cell_visited(3, 2, 1);
+    set_cell_visited(2, 2, 1);
+    set_cell_visited(3, 0, 1);
+
+    set_cell_turn_visited(4, 0, 1);
+    set_cell_turn_visited(4, 1, 1);
+    set_cell_turn_visited(4, 2, 2);
+    set_cell_turn_visited(3, 2, 2);
+    set_cell_turn_visited(2, 2, 3);
+    set_cell_turn_visited(3, 0, 3);
+
+    clean_board_turn_visited(4,0,3);
+
+    board_test[0*BOARD_SIZE + 4] -> turn_visited = 1;
+    board_test[1*BOARD_SIZE + 4] -> turn_visited = 1;
+    board_test[2*BOARD_SIZE + 4] -> turn_visited = 2;
+    board_test[2*BOARD_SIZE + 3] -> turn_visited = 2;
+    int turn, visited, expected_turn, expected_visited;
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            visited = get_cell_visited(i, j);
+            turn = get_cell_turn_visited(i, j);
+            expected_visited = board_test[j*BOARD_SIZE + i] -> visited;
+            expected_turn = board_test[j*BOARD_SIZE + i] -> turn_visited;
+            SUT_INT_EQUAL(visited, expected_visited, "The cell visited should be %d but is %d", expected_visited, visited);
+            SUT_INT_EQUAL(turn, expected_turn, "The cell visited should be %d but is %d", expected_turn, turn);
+        }
+    }
+    clean_board(4,0);
+    board_test[0*BOARD_SIZE + 4] -> turn_visited = 0;
+    board_test[1*BOARD_SIZE + 4] -> turn_visited = 0;
+    board_test[2*BOARD_SIZE + 4] -> turn_visited = 0;
+    board_test[2*BOARD_SIZE + 3] -> turn_visited = 0;
+
+    return 1;
+}
+
+SUT_TEST(propagate)
+{
+    char c, expected;
+    int nb_cells;
+
+    nb_cells = propagate('+', 0, BOARD_SIZE - 1, 'A');
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            c = get_cell_color(i, j);
+            expected = board_test[j*BOARD_SIZE + i] -> color;
+            SUT_CHAR_EQUAL(c, expected, "The cell color should be %c but is '%c'", expected, c);
+        }
+    }
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 1, "The cell number should be 1 but is '%d'", nb_cells);
+
+    board_test[4*BOARD_SIZE + 1] -> color = '+';
+    board_test[4*BOARD_SIZE + 2] -> color = '+';
+    nb_cells = propagate('+', 0, BOARD_SIZE - 1, 'D');
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            c = get_cell_color(i, j);
+            expected = board_test[j*BOARD_SIZE + i] -> color;
+            SUT_CHAR_EQUAL(c, expected, "The cell color should be %c but is '%s'", expected, c);
+        }
+    }
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 3, "The cell number should be 3 but is '%d'", nb_cells);
+
+    board_test[3*BOARD_SIZE + 0] -> color = '+';
+    board_test[4*BOARD_SIZE + 3] -> color = '+';
+    nb_cells = propagate('+', 0, BOARD_SIZE - 1, 'C');
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            c = get_cell_color(i, j);
+            expected = board_test[j*BOARD_SIZE + i] -> color;
+            SUT_CHAR_EQUAL(c, expected, "The cell color should be %c but is '%s'", expected, c);
+        }
+    }
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 5, "The cell number should be 5 but is '%d'", nb_cells);
+   return 1;
+}
+
+SUT_TEST(update_board)
+{
+    char c, expected;
+
+    update_board('D', get_player(1));
+    board_test[1*BOARD_SIZE + 4] -> color = '-';
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            c = get_cell_color(i, j);
+            expected = board_test[j*BOARD_SIZE + i] -> color;
+            SUT_CHAR_EQUAL(c, expected, "The cell color should be %c but is '%c'", expected, c);
+        }
+    }
+    clean_board(0, BOARD_SIZE-1);
+    int nb_cells = get_player_cell_owned(get_player(1));
+    SUT_INT_EQUAL(nb_cells, 2, "The cell number should be 0 but is '%d'", nb_cells);
+
+    update_board('F', get_player(1));
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            c = get_cell_color(i, j);
+            expected = board_test[j*BOARD_SIZE + i] -> color;
+            SUT_CHAR_EQUAL(c, expected, "The cell color should be %c but is '%c'", expected, c);
+        }
+    }
+    clean_board(0, BOARD_SIZE-1);
+    nb_cells = get_player_cell_owned(get_player(1));
+    SUT_INT_EQUAL(nb_cells, 2, "The cell number should be 0 but is '%d'", nb_cells);
+
+    set_player_cell_owned(get_player(1), 1);
+   return 1;
+}
+
+SUT_TEST(end_game){
+    int res = end_game();
+    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%d'", res);
+
+    set_player_cell_owned(get_player(1), 15);
+    res = end_game();
+    SUT_INT_EQUAL(res, 2, "The result should be 2 but is '%d'", res);
+
+    set_player_cell_owned(get_player(1), 1);
+    return 1;
+}
+
+SUT_TEST(alea_strategy){
+    set_cell_color(0, 3,'C');
+    set_cell_color(1, 4,'D');
+    set_cell_color(2, 4,'D');
+    set_cell_color(3, 4,'C');
+    set_cell_color(4, 1,'D');
+
+    board_test[4*BOARD_SIZE + 1] -> color = 'D';
+    board_test[4*BOARD_SIZE + 2] -> color = 'D';
+    board_test[3*BOARD_SIZE + 0] -> color = 'C';
+    board_test[4*BOARD_SIZE + 3] -> color = 'C';
+    board_test[1*BOARD_SIZE + 4] -> color = 'D';
+
+    char letter  = alea_strategy(get_player(1));
+
+    SUT_ASSERT(letter != 'A', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'C', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'E', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'F', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'G', "The cell color should be B or D but is '%c'", letter);
+
+    return 1;
+}
+
+
+SUT_TEST(glouton_strategy){
+    char letter  = glouton_strategy(get_player(0));
+
+    SUT_CHAR_EQUAL(letter, 'D', "The cell color should be D but is '%c'", letter);
+
+    return 1;
+}
+
+SUT_TEST(hegemonique_strategy){
+    char letter  = hegemonique_strategy(get_player(0));
+
+    SUT_CHAR_EQUAL(letter, 'D', "The cell color should be D but is '%c'", letter);
+
+    return 1;
+}
+SUT_TEST(glouton_prevoyant_strategy){
+    char letter  = glouton_prevoyant_strategy(get_player(0));
+
+    SUT_CHAR_EQUAL(letter, 'C', "The cell color should be C but is '%c'", letter);
+
+    return 1;
+}
+SUT_TEST(is_landlocked){
+    set_cell_color(2, 0,'-');
+    set_cell_color(1, 1,'-');
+    set_cell_color(2, 2,'-');
+    set_cell_color(3, 1,'-');
+
+    int res  = is_landlocked(2,1,'-');
+    SUT_INT_EQUAL(res, 1, "The result should be 1 but is '%c'", res);
+
+    res  = is_landlocked(4,3,'-');
+    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
+
+    set_cell_color(2, 0,'C');
+    set_cell_color(1, 1,'F');
+    set_cell_color(2, 2,'B');
+    set_cell_color(3, 1,'E');
+
+    return 1;
+}
+
+SUT_TEST(neighbours_counter){
+    neighbours_counter(1);
+    neighbours_counter(1);
+    neighbours_counter(1);
+    neighbours_counter(0);
+    neighbours_counter(1);
+
+    int res  = neighbours_counter(1);
+    SUT_INT_EQUAL(res, 2, "The result should be 2 but is '%c'", res);
+
+    res  = neighbours_counter(0);
+    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
+
+
+    return 1;
+}
+
 SUT_TEST_SUITE(board) = {
+    //Tests for player struct
     SUT_TEST_SUITE_ADD(get_player_symbol),
     SUT_TEST_SUITE_ADD(get_player_ai_type),
     SUT_TEST_SUITE_ADD(get_player_init_x),
@@ -759,11 +1038,31 @@ SUT_TEST_SUITE(board) = {
     SUT_TEST_SUITE_ADD(get_player_cell_owned),
     SUT_TEST_SUITE_ADD(set_player_cell_owned),
 
+    //Tests for cell struct
     SUT_TEST_SUITE_ADD(get_cell_color),
     SUT_TEST_SUITE_ADD(getset_cell_color),
     SUT_TEST_SUITE_ADD(get_cell_visited),
     SUT_TEST_SUITE_ADD(getset_cell_visited),
     SUT_TEST_SUITE_ADD(get_cell_turn_visited),
     SUT_TEST_SUITE_ADD(getset_cell_turn_visited),
+
+    //Tests for the board
+    SUT_TEST_SUITE_ADD(init_board),
+    SUT_TEST_SUITE_ADD(clean_board),
+    SUT_TEST_SUITE_ADD(clean_board_turn_visited),
+    SUT_TEST_SUITE_ADD(propagate),
+    SUT_TEST_SUITE_ADD(update_board),
+    SUT_TEST_SUITE_ADD(end_game),
+
+    //Tests for the AI
+    SUT_TEST_SUITE_ADD(alea_strategy),
+    SUT_TEST_SUITE_ADD(glouton_strategy),
+    SUT_TEST_SUITE_ADD(neighbours_counter),
+    SUT_TEST_SUITE_ADD(is_landlocked),
+    SUT_TEST_SUITE_ADD(hegemonique_strategy),
+    SUT_TEST_SUITE_ADD(glouton_prevoyant_strategy),
+    
+    //Tests for the tournament
+
     SUT_TEST_SUITE_END
 };
