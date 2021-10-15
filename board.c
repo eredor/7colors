@@ -144,6 +144,14 @@ void set_cell_turn_visited(int x, int y, int turn)
     board[y * BOARD_SIZE + x]->turn_visited = turn;
 }
 
+void delete_board(){
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+           delete_cell(board[j*BOARD_SIZE + i]);
+        }
+    }
+}
+
 /** Prints the current state of the board on screen
  *
  * It would be nicer to do this with ncurse or even SFML or SDL,
@@ -155,6 +163,17 @@ void print_board(void)
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
             printf("%c  ", get_cell_color(i, j));
+        }
+        printf("\n");
+    }
+}
+
+void print_board_visited(void)
+{
+    int i, j;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            printf("(%d %d)  ", get_cell_visited(i, j), get_cell_turn_visited(i, j));
         }
         printf("\n");
     }
@@ -180,6 +199,28 @@ void clean_board(int x, int y){
     }
     if ((y > 0) && (get_cell_visited(x, y - 1) || get_cell_turn_visited(x, y-1))) {
         clean_board(x, y - 1);
+    }
+}
+
+/**
+ * @param x : the strating position x of a player
+ * @param y : th estrating position y of a player
+ * 
+ * Reset the value of visited
+ */
+void clean_board_visited(int x, int y){
+    set_cell_visited(x, y, 0);
+    if ((x < BOARD_SIZE - 1) && get_cell_visited(x + 1, y)) {
+        clean_board_visited(x + 1, y);
+    }
+    if ((x > 0) && get_cell_visited(x-1, y)) {
+        clean_board_visited(x - 1, y);
+    }
+    if ((y < BOARD_SIZE - 1) && get_cell_visited(x, y + 1)){
+        clean_board_visited(x, y + 1);
+    }
+    if ((y > 0) && get_cell_visited(x, y - 1)) {
+        clean_board_visited(x, y - 1);
     }
 }
 
@@ -219,8 +260,9 @@ char alea_strategy(player_t* player)
     int x = get_player_init_x(player);
     int y = get_player_init_y(player);
     char color = get_player_symbol(player);
+    int cells_owned = get_player_cell_owned(player);
     char letter = 'A' + (rand() % NB_COLORS);
-    while(sim_propagate(color, x, y, letter, 1,0) == get_player_cell_owned(player)) {
+    while(sim_propagate(color, x, y, letter, 1,0) == cells_owned) {
         letter = 'A' + (rand() % NB_COLORS);
         clean_board(x, y);
     }
@@ -324,17 +366,27 @@ char glouton_prevoyant_strategy(player_t* player){
     int y = get_player_init_y(player);
     char color = get_player_symbol(player);
     char letter;
-    int max_cells = 0;
+    int max_cells1 = 0;
+    int max_cells2 = 0;
     int temp_cells_1, temp_cells_2;
     for (char i = 'A'; i < 'A' + NB_COLORS; i++) {
         temp_cells_1 = sim_propagate(color, x, y, i, 4, 1);
+        clean_board_visited(x,y);
         if(temp_cells_1 != get_player_cell_owned(player)){
             for (char j = 'A'; j < 'A' + NB_COLORS; j++) {
-                temp_cells_2 = sim_propagate(color, x, y, j, 4, 2);
-                clean_board_turn_visited(x, y, 2);
-                if(temp_cells_2 > max_cells){
-                    max_cells = temp_cells_2;
-                    letter = i;
+                if(i != j){
+                    temp_cells_2 = sim_propagate(color, x, y, j, 4, 2);
+                    clean_board_turn_visited(x, y, 2);
+                    if(temp_cells_2 > max_cells2){
+                        max_cells1 = temp_cells_1;
+                        max_cells2 = temp_cells_2;
+                        letter = i;
+                    }
+                    else if((temp_cells_2 == max_cells2) && (temp_cells_1 > max_cells1)){
+                        max_cells1 = temp_cells_1;
+                        max_cells2 = temp_cells_2;
+                        letter = i;
+                    }
                 }
             }
         }
@@ -568,9 +620,9 @@ void init_game_AI(int ai_type1, int ai_type2) {
         int y_init = (1 - i) * (BOARD_SIZE - 1);
 
         if (i == 0){
-            set_player(i, add_player('0', ai_type1, x_init, y_init));
+            set_player(i, add_player('+', ai_type1, x_init, y_init));
         } else {
-            set_player(i, add_player('1', ai_type2, x_init, y_init));
+            set_player(i, add_player('-', ai_type2, x_init, y_init));
         }
     }
     init_board();
@@ -610,6 +662,9 @@ int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
         }
 
         if(end_game() == 1) victory_1 += 1;
+        delete_player(player_list[0]);
+        delete_player(player_list[1]);
+        delete_board();
     }
     return victory_1;
 }
@@ -861,7 +916,7 @@ SUT_TEST(propagate)
     char c, expected;
     int nb_cells;
 
-    nb_cells = propagate('+', 0, BOARD_SIZE - 1, 'A');
+    nb_cells = propagate('-', BOARD_SIZE-1, 0, 'A');
     for(int i = 0; i < BOARD_SIZE; i++){
         for(int j = 0; j < BOARD_SIZE; j++){
             c = get_cell_color(i, j);
@@ -945,7 +1000,8 @@ SUT_TEST(end_game){
     return 1;
 }
 
-SUT_TEST(alea_strategy){
+SUT_TEST(sim_propagate)
+{
     set_cell_color(0, 3,'C');
     set_cell_color(1, 4,'D');
     set_cell_color(2, 4,'D');
@@ -958,6 +1014,35 @@ SUT_TEST(alea_strategy){
     board_test[4*BOARD_SIZE + 3] -> color = 'C';
     board_test[1*BOARD_SIZE + 4] -> color = 'D';
 
+    int nb_cells;
+
+    nb_cells = sim_propagate('-', BOARD_SIZE-1, 0, 'A', 1, 0);
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 1, "The cell number should be 1 but is '%d'", nb_cells);
+
+    nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'D', 1, 0);
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 3, "The cell number should be 3 but is '%d'", nb_cells);
+
+    propagate('+', 0, BOARD_SIZE - 1, 'D');
+    clean_board(0, BOARD_SIZE-1);
+    nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'C', 3, 0);
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 5, "The cell number should be 5 but is '%d'", nb_cells);
+
+    sim_propagate('+', 0, BOARD_SIZE - 1, 'C', 4, 1);
+    clean_board_visited(0, BOARD_SIZE-1);
+    nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'F', 4, 1);
+    clean_board(0, BOARD_SIZE-1);
+    SUT_INT_EQUAL(nb_cells, 9, "The cell number should be 9 but is '%d'", nb_cells);
+
+    set_cell_color(1, 4,'D');
+    set_cell_color(2, 4,'D');
+   return 1;
+}
+
+
+SUT_TEST(alea_strategy){
     char letter  = alea_strategy(get_player(1));
 
     SUT_ASSERT(letter != 'A', "The cell color should be B or D but is '%c'", letter);
@@ -966,30 +1051,112 @@ SUT_TEST(alea_strategy){
     SUT_ASSERT(letter != 'F', "The cell color should be B or D but is '%c'", letter);
     SUT_ASSERT(letter != 'G', "The cell color should be B or D but is '%c'", letter);
 
+    set_player_cell_owned(get_player(1), propagate('-', 4, 0, letter));
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = alea_strategy(get_player(1));
+
+    SUT_ASSERT(letter != 'F', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'G', "The cell color should be B or D but is '%c'", letter);
+
+    set_player_cell_owned(get_player(1), 1);
+
+    set_cell_color(3, 0,'B');
+    set_cell_color(4, 1,'D');
     return 1;
 }
 
 
 SUT_TEST(glouton_strategy){
     char letter  = glouton_strategy(get_player(0));
-
     SUT_CHAR_EQUAL(letter, 'D', "The cell color should be D but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = glouton_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'C', "The cell color should be D but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = glouton_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'F', "The cell color should be F but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = glouton_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'B', "The cell color should be B but is '%c'", letter);
+
+    
+    set_cell_color(1, 4,'D');
+    set_cell_color(2, 4,'D');
+    set_cell_color(0, 3,'C');
+    set_cell_color(3, 4,'C');
+    set_cell_color(0, 2,'F');
+    set_cell_color(1, 2,'F');
+    set_cell_color(1, 1,'F');
+    set_cell_color(1, 0,'F');
 
     return 1;
 }
 
 SUT_TEST(hegemonique_strategy){
     char letter  = hegemonique_strategy(get_player(0));
-
     SUT_CHAR_EQUAL(letter, 'D', "The cell color should be D but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = hegemonique_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'C', "The cell color should be C but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = hegemonique_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'F', "The cell color should be F but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = hegemonique_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'E', "The cell color should be E but is '%c'", letter);
+
+    set_cell_color(1, 4,'D');
+    set_cell_color(2, 4,'D');
+    set_cell_color(0, 3,'C');
+    set_cell_color(3, 4,'C');
+    set_cell_color(0, 2,'F');
+    set_cell_color(1, 2,'F');
+    set_cell_color(1, 1,'F');
+    set_cell_color(1, 0,'F');
 
     return 1;
 }
 SUT_TEST(glouton_prevoyant_strategy){
     char letter  = glouton_prevoyant_strategy(get_player(0));
-
     SUT_CHAR_EQUAL(letter, 'C', "The cell color should be C but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
 
+    letter  = glouton_prevoyant_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'F', "The cell color should be F but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = glouton_prevoyant_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'B', "The cell color should be D but is '%c'", letter);
+    propagate('+', 0, 4, letter);
+    clean_board(BOARD_SIZE-1,0);
+
+    letter  = glouton_prevoyant_strategy(get_player(0));
+    SUT_CHAR_EQUAL(letter, 'D', "The cell color should be C but is '%c'", letter);
+
+
+    set_cell_color(0, 3,'C');
+    set_cell_color(0, 2,'F');
+    set_cell_color(1, 2,'F');
+    set_cell_color(1, 1,'F');
+    set_cell_color(1, 0,'F');
+    set_cell_color(0, 1,'B');
+    set_cell_color(2, 2,'B');
+    
     return 1;
 }
 SUT_TEST(is_landlocked){
@@ -1028,7 +1195,33 @@ SUT_TEST(neighbours_counter){
 
     return 1;
 }
+SUT_TEST(init_game_AI)
+{
+    delete_player(player_list[0]);
+    delete_player(player_list[1]);
+    delete_board();
+    init_game_AI(1, 2);
 
+   SUT_CHAR_EQUAL(get_player_symbol(get_player(0)), '+', "The player color should be '+' but is '%s'", get_player_symbol(get_player(0)));
+   SUT_CHAR_EQUAL(get_player_symbol(get_player(1)), '-', "The player color should be '-' but is '%s'", get_player_symbol(get_player(1)));
+
+   SUT_INT_EQUAL(get_player_ai_type(get_player(0)), 1, "The player ai type should be 1 but is '%s'", get_player_ai_type(get_player(0)));
+   SUT_INT_EQUAL(get_player_ai_type(get_player(1)), 2, "The player ai type should be 2  but is '%s'", get_player_ai_type(get_player(1)));
+
+   SUT_INT_EQUAL(get_player_init_x(get_player(0)), 0, "The player ai type should be 4 but is '%s'", get_player_init_x(get_player(0)));
+   SUT_INT_EQUAL(get_player_init_x(get_player(1)), 4, "The player ai type should be 0  but is '%s'", get_player_init_x(get_player(1)));
+
+    SUT_INT_EQUAL(get_player_init_y(get_player(0)), 4, "The player ai type should be 0 but is '%s'", get_player_init_y(get_player(0)));
+   SUT_INT_EQUAL(get_player_init_y(get_player(1)), 0, "The player ai type should be 4 but is '%s'", get_player_init_y(get_player(1)));
+
+    SUT_INT_EQUAL(get_player_cell_owned(get_player(0)), 1, "The player ai type should be 1 but is '%s'", get_player_cell_owned(get_player(0)));
+   SUT_INT_EQUAL(get_player_cell_owned(get_player(1)), 1, "The player ai type should be 1 but is '%s'", get_player_cell_owned(get_player(1)));
+
+    delete_player(player_list[0]);
+    delete_player(player_list[1]);
+    delete_board();
+   return 1;
+}
 SUT_TEST_SUITE(board) = {
     //Tests for player struct
     SUT_TEST_SUITE_ADD(get_player_symbol),
@@ -1055,6 +1248,7 @@ SUT_TEST_SUITE(board) = {
     SUT_TEST_SUITE_ADD(end_game),
 
     //Tests for the AI
+    SUT_TEST_SUITE_ADD(sim_propagate),
     SUT_TEST_SUITE_ADD(alea_strategy),
     SUT_TEST_SUITE_ADD(glouton_strategy),
     SUT_TEST_SUITE_ADD(neighbours_counter),
@@ -1063,6 +1257,7 @@ SUT_TEST_SUITE(board) = {
     SUT_TEST_SUITE_ADD(glouton_prevoyant_strategy),
     
     //Tests for the tournament
+    SUT_TEST_SUITE_ADD(init_game_AI),
 
     SUT_TEST_SUITE_END
 };
