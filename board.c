@@ -53,6 +53,7 @@ struct cell {
 /** Represent the actual current board game */
 cell_t* board[BOARD_SIZE * BOARD_SIZE];
 cell_t* board_test[BOARD_SIZE * BOARD_SIZE];
+
 /** 
  * @param color : the color of the cell
  * 
@@ -144,6 +145,9 @@ void set_cell_turn_visited(int x, int y, int turn)
     board[y * BOARD_SIZE + x]->turn_visited = turn;
 }
 
+/**
+ * Free the memory of all of the board cells
+ */
 void delete_board(){
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
@@ -163,17 +167,6 @@ void print_board(void)
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
             printf("%c  ", get_cell_color(i, j));
-        }
-        printf("\n");
-    }
-}
-
-void print_board_visited(void)
-{
-    int i, j;
-    for (i = 0; i < BOARD_SIZE; i++) {
-        for (j = 0; j < BOARD_SIZE; j++) {
-            printf("(%d %d)  ", get_cell_visited(i, j), get_cell_turn_visited(i, j));
         }
         printf("\n");
     }
@@ -1156,7 +1149,7 @@ SUT_TEST(glouton_prevoyant_strategy){
     set_cell_color(1, 0,'F');
     set_cell_color(0, 1,'B');
     set_cell_color(2, 2,'B');
-    
+
     return 1;
 }
 SUT_TEST(is_landlocked){

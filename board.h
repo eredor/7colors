@@ -91,6 +91,9 @@ int get_cell_turn_visited(int x, int y);
  */
 void set_cell_turn_visited(int x, int y, int turn);
 
+/**
+ * Free the memory of all of the board cells
+ */
 void delete_board();
 
 /** Prints the current state of the board on screen
@@ -100,7 +103,6 @@ void delete_board();
  */
 void print_board(void);
 
-void print_board_visited(void);
 
 /**
  * @param x : the strating position x of a player
@@ -109,6 +111,13 @@ void print_board_visited(void);
  * Reset the value of visited and turn_visited
  */
 void clean_board(int x, int y);
+
+/**
+ * @param x : the strating position x of a player
+ * @param y : th estrating position y of a player
+ * 
+ * Reset the value of visited
+ */
 void clean_board_visited(int x, int y);
 
 /**
