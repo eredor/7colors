@@ -665,12 +665,12 @@ int tournament_AI(int ai_type1, int ai_type2, int nb_games) {
 
 /************ The tests **************/
 
-/* Tests that the initialization works */
+/* Tests player functions work */
 SUT_TEST(get_player_symbol)
 {
    player_t* player = add_player('+', 0, 3, 1);
    char c = get_player_symbol(player);
-   SUT_CHAR_EQUAL(c, '+', "The player symbol should be '+' but is '%c'", c);
+   SUT_CHAR_EQUAL(c, '+', "The player's symbol should be '+' but is '%c'", c);
    delete_player(player);
 
    return 1;
@@ -680,7 +680,7 @@ SUT_TEST(get_player_ai_type)
 {
    player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_ai_type(player);
-   SUT_CHAR_EQUAL(i, 0, "The player ai should be 0 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 0, "The player's ai should be 0 but is '%d'", i);
    delete_player(player);
 
    return 1;
@@ -690,7 +690,7 @@ SUT_TEST(get_player_init_x)
 {
    player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_init_x(player);
-   SUT_CHAR_EQUAL(i, 3, "The player ai should be 3 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 3, "The player's x position should be 3 but is '%d'", i);
    delete_player(player);
 
    return 1;
@@ -700,7 +700,7 @@ SUT_TEST(get_player_init_y)
 {
    player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_init_y(player);
-   SUT_CHAR_EQUAL(i, 1, "The player ai should be 1 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 1, "The player's y postion should be 1 but is '%d'", i);
    delete_player(player);
 
    return 1;
@@ -710,7 +710,7 @@ SUT_TEST(get_player_cell_owned)
 {
    player_t* player = add_player('+', 0, 3, 1);
    int i = get_player_cell_owned(player);
-   SUT_CHAR_EQUAL(i, 1, "The player symbol should be 1 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 1, "The player's number of cells owned should be 1 but is '%d'", i);
 
     delete_player(player);
    return 1;
@@ -721,13 +721,13 @@ SUT_TEST(set_player_cell_owned)
    player_t* player = add_player('+', 0, 3, 1);
    set_player_cell_owned(player, 124);
    int i = get_player_cell_owned(player);
-   SUT_CHAR_EQUAL(i, 124, "The player symbol should be 124 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 124, "The player's number of cells owned should be 124 but is '%d'", i);
 
     delete_player(player);
    return 1;
 }
 
-/* Tests that the get_cell and set_cell work */
+/* Tests that cell functions work */
 SUT_TEST(get_cell_color)
 {
     cell_t* cell = create_cell('A');
@@ -756,7 +756,7 @@ SUT_TEST(get_cell_visited)
     cell_t* cell = create_cell('A');
     board[2*BOARD_SIZE + 2] = cell;
    int i = get_cell_visited(2, 2);
-   SUT_CHAR_EQUAL(i, 0, "The cell visited should be 0 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 0, "The cell's visited attribute should be 0 but is '%d'", i);
    delete_cell(cell);
 
    return 1;
@@ -768,7 +768,7 @@ SUT_TEST(getset_cell_visited)
     board[2*BOARD_SIZE + 2] = cell;
     set_cell_visited(2, 2, 1);
    int i = get_cell_visited(2, 2);
-   SUT_CHAR_EQUAL(i, 1, "The cell visited should be 1 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 1, "The cell's visited attribute should be 1 but is '%d'", i);
    delete_cell(cell);
 
    return 1;
@@ -780,7 +780,7 @@ SUT_TEST(get_cell_turn_visited)
     cell_t* cell = create_cell('A');
     board[2*BOARD_SIZE + 2] = cell;
    int i = get_cell_turn_visited(2, 2);
-   SUT_CHAR_EQUAL(i, 0, "The cell turn_visited should be 0 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 0, "The cell's turn_visited attribute should be 0 but is '%d'", i);
    delete_cell(cell);
 
    return 1;
@@ -792,12 +792,13 @@ SUT_TEST(getset_cell_turn_visited)
     board[2*BOARD_SIZE + 2] = cell;
     set_cell_turn_visited(2, 2, 3);
    int i = get_cell_turn_visited(2, 2);
-   SUT_CHAR_EQUAL(i, 3, "The cell turn_visited should be 3 but is '%d'", i);
+   SUT_CHAR_EQUAL(i, 3, "The cell's turn_visited attribute should be 3 but is '%d'", i);
    delete_cell(cell);
 
    return 1;
 }
 
+/** Tests for the board */
 SUT_TEST(init_board)
 {
     srand(time(NULL)); 
@@ -806,8 +807,8 @@ SUT_TEST(init_board)
     init_board();
     char c1 = get_cell_color(0, BOARD_SIZE -1);
     char c2 = get_cell_color(BOARD_SIZE -1, 0);
-   SUT_CHAR_EQUAL(c1, '+', "The cell color should be '+' but is '%s'", c1);
-   SUT_CHAR_EQUAL(c2, '-', "The cell color should be '-' but is '%s'", c2);
+   SUT_CHAR_EQUAL(c1, '+', "The cell's color should be '+' but is '%s'", c1);
+   SUT_CHAR_EQUAL(c2, '-', "The cell's color should be '-' but is '%s'", c2);
 
    return 1;
 }
@@ -855,8 +856,8 @@ SUT_TEST(clean_board){
             turn = get_cell_turn_visited(i, j);
             expected_visited = board_test[j*BOARD_SIZE + i] -> visited;
             expected_turn = board_test[j*BOARD_SIZE + i] -> turn_visited;
-            SUT_INT_EQUAL(visited, expected_visited, "The cell visited should be %d but is %d", expected_visited, visited);
-            SUT_INT_EQUAL(turn, expected_turn, "The cell visited should be %d but is %d", expected_turn, turn);
+            SUT_INT_EQUAL(visited, expected_visited, "The cell's visited attribute should be %d but is %d", expected_visited, visited);
+            SUT_INT_EQUAL(turn, expected_turn, "The cell's turn_visited attribute should be %d but is %d", expected_turn, turn);
         }
     }
 
@@ -891,8 +892,8 @@ SUT_TEST(clean_board_turn_visited){
             turn = get_cell_turn_visited(i, j);
             expected_visited = board_test[j*BOARD_SIZE + i] -> visited;
             expected_turn = board_test[j*BOARD_SIZE + i] -> turn_visited;
-            SUT_INT_EQUAL(visited, expected_visited, "The cell visited should be %d but is %d", expected_visited, visited);
-            SUT_INT_EQUAL(turn, expected_turn, "The cell visited should be %d but is %d", expected_turn, turn);
+            SUT_INT_EQUAL(visited, expected_visited, "The cell's visited attribute should be %d but is %d", expected_visited, visited);
+            SUT_INT_EQUAL(turn, expected_turn, "The cell's turn_visited attribute should be %d but is %d", expected_turn, turn);
         }
     }
     clean_board(4,0);
@@ -963,7 +964,7 @@ SUT_TEST(update_board)
     }
     clean_board(0, BOARD_SIZE-1);
     int nb_cells = get_player_cell_owned(get_player(1));
-    SUT_INT_EQUAL(nb_cells, 2, "The cell number should be 0 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 2, "The number of cells should be 2 but is '%d'", nb_cells);
 
     update_board('F', get_player(1));
     for(int i = 0; i < BOARD_SIZE; i++){
@@ -975,7 +976,7 @@ SUT_TEST(update_board)
     }
     clean_board(0, BOARD_SIZE-1);
     nb_cells = get_player_cell_owned(get_player(1));
-    SUT_INT_EQUAL(nb_cells, 2, "The cell number should be 0 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 2, "The number of cells should be 2 but is '%d'", nb_cells);
 
     set_player_cell_owned(get_player(1), 1);
    return 1;
@@ -992,7 +993,7 @@ SUT_TEST(end_game){
     set_player_cell_owned(get_player(1), 1);
     return 1;
 }
-
+/** Tests for the AI strategy */
 SUT_TEST(sim_propagate)
 {
     set_cell_color(0, 3,'C');
@@ -1011,23 +1012,23 @@ SUT_TEST(sim_propagate)
 
     nb_cells = sim_propagate('-', BOARD_SIZE-1, 0, 'A', 1, 0);
     clean_board(0, BOARD_SIZE-1);
-    SUT_INT_EQUAL(nb_cells, 1, "The cell number should be 1 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 1, "The number of cells should be 1 but is '%d'", nb_cells);
 
     nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'D', 1, 0);
     clean_board(0, BOARD_SIZE-1);
-    SUT_INT_EQUAL(nb_cells, 3, "The cell number should be 3 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 3, "The number of cells should be 3 but is '%d'", nb_cells);
 
     propagate('+', 0, BOARD_SIZE - 1, 'D');
     clean_board(0, BOARD_SIZE-1);
     nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'C', 3, 0);
     clean_board(0, BOARD_SIZE-1);
-    SUT_INT_EQUAL(nb_cells, 5, "The cell number should be 5 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 5, "The number of cells should be 5 but is '%d'", nb_cells);
 
     sim_propagate('+', 0, BOARD_SIZE - 1, 'C', 4, 1);
     clean_board_visited(0, BOARD_SIZE-1);
     nb_cells = sim_propagate('+', 0, BOARD_SIZE - 1, 'F', 4, 1);
     clean_board(0, BOARD_SIZE-1);
-    SUT_INT_EQUAL(nb_cells, 9, "The cell number should be 9 but is '%d'", nb_cells);
+    SUT_INT_EQUAL(nb_cells, 9, "The number of cells should be 9 but is '%d'", nb_cells);
 
     set_cell_color(1, 4,'D');
     set_cell_color(2, 4,'D');
@@ -1049,8 +1050,8 @@ SUT_TEST(alea_strategy){
 
     letter  = alea_strategy(get_player(1));
 
-    SUT_ASSERT(letter != 'F', "The cell color should be B or D but is '%c'", letter);
-    SUT_ASSERT(letter != 'G', "The cell color should be B or D but is '%c'", letter);
+    SUT_ASSERT(letter != 'F', "The cell color should be A B C D or E but is '%c'", letter);
+    SUT_ASSERT(letter != 'G', "The cell color should be  A B C D or E but is '%c'", letter);
 
     set_player_cell_owned(get_player(1), 1);
 
@@ -1067,7 +1068,7 @@ SUT_TEST(glouton_strategy){
     clean_board(BOARD_SIZE-1,0);
 
     letter  = glouton_strategy(get_player(0));
-    SUT_CHAR_EQUAL(letter, 'C', "The cell color should be D but is '%c'", letter);
+    SUT_CHAR_EQUAL(letter, 'C', "The cell color should be C but is '%c'", letter);
     propagate('+', 0, 4, letter);
     clean_board(BOARD_SIZE-1,0);
 
@@ -1088,6 +1089,43 @@ SUT_TEST(glouton_strategy){
     set_cell_color(1, 2,'F');
     set_cell_color(1, 1,'F');
     set_cell_color(1, 0,'F');
+
+    return 1;
+}
+
+SUT_TEST(is_landlocked){
+    set_cell_color(2, 0,'-');
+    set_cell_color(1, 1,'-');
+    set_cell_color(2, 2,'-');
+    set_cell_color(3, 1,'-');
+
+    int res  = is_landlocked(2,1,'-');
+    SUT_INT_EQUAL(res, 1, "The result should be 1 but is '%c'", res);
+
+    res  = is_landlocked(4,3,'-');
+    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
+
+    set_cell_color(2, 0,'C');
+    set_cell_color(1, 1,'F');
+    set_cell_color(2, 2,'B');
+    set_cell_color(3, 1,'E');
+
+    return 1;
+}
+
+SUT_TEST(neighbours_counter){
+    neighbours_counter(1);
+    neighbours_counter(1);
+    neighbours_counter(1);
+    neighbours_counter(0);
+    neighbours_counter(1);
+
+    int res  = neighbours_counter(1);
+    SUT_INT_EQUAL(res, 2, "The result should be 2 but is '%c'", res);
+
+    res  = neighbours_counter(0);
+    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
+
 
     return 1;
 }
@@ -1134,12 +1172,12 @@ SUT_TEST(glouton_prevoyant_strategy){
     clean_board(BOARD_SIZE-1,0);
 
     letter  = glouton_prevoyant_strategy(get_player(0));
-    SUT_CHAR_EQUAL(letter, 'B', "The cell color should be D but is '%c'", letter);
+    SUT_CHAR_EQUAL(letter, 'B', "The cell color should be B but is '%c'", letter);
     propagate('+', 0, 4, letter);
     clean_board(BOARD_SIZE-1,0);
 
     letter  = glouton_prevoyant_strategy(get_player(0));
-    SUT_CHAR_EQUAL(letter, 'D', "The cell color should be C but is '%c'", letter);
+    SUT_CHAR_EQUAL(letter, 'D', "The cell color should be D but is '%c'", letter);
 
 
     set_cell_color(0, 3,'C');
@@ -1152,42 +1190,8 @@ SUT_TEST(glouton_prevoyant_strategy){
 
     return 1;
 }
-SUT_TEST(is_landlocked){
-    set_cell_color(2, 0,'-');
-    set_cell_color(1, 1,'-');
-    set_cell_color(2, 2,'-');
-    set_cell_color(3, 1,'-');
 
-    int res  = is_landlocked(2,1,'-');
-    SUT_INT_EQUAL(res, 1, "The result should be 1 but is '%c'", res);
-
-    res  = is_landlocked(4,3,'-');
-    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
-
-    set_cell_color(2, 0,'C');
-    set_cell_color(1, 1,'F');
-    set_cell_color(2, 2,'B');
-    set_cell_color(3, 1,'E');
-
-    return 1;
-}
-
-SUT_TEST(neighbours_counter){
-    neighbours_counter(1);
-    neighbours_counter(1);
-    neighbours_counter(1);
-    neighbours_counter(0);
-    neighbours_counter(1);
-
-    int res  = neighbours_counter(1);
-    SUT_INT_EQUAL(res, 2, "The result should be 2 but is '%c'", res);
-
-    res  = neighbours_counter(0);
-    SUT_INT_EQUAL(res, 0, "The result should be 0 but is '%c'", res);
-
-
-    return 1;
-}
+/** Tests for the tournament */
 SUT_TEST(init_game_AI)
 {
     delete_player(player_list[0]);
@@ -1195,20 +1199,20 @@ SUT_TEST(init_game_AI)
     delete_board();
     init_game_AI(1, 2);
 
-   SUT_CHAR_EQUAL(get_player_symbol(get_player(0)), '+', "The player color should be '+' but is '%s'", get_player_symbol(get_player(0)));
-   SUT_CHAR_EQUAL(get_player_symbol(get_player(1)), '-', "The player color should be '-' but is '%s'", get_player_symbol(get_player(1)));
+   SUT_CHAR_EQUAL(get_player_symbol(get_player(0)), '+', "The player color should be '+' but is '%d'", get_player_symbol(get_player(0)));
+   SUT_CHAR_EQUAL(get_player_symbol(get_player(1)), '-', "The player color should be '-' but is '%d'", get_player_symbol(get_player(1)));
 
-   SUT_INT_EQUAL(get_player_ai_type(get_player(0)), 1, "The player ai type should be 1 but is '%s'", get_player_ai_type(get_player(0)));
-   SUT_INT_EQUAL(get_player_ai_type(get_player(1)), 2, "The player ai type should be 2  but is '%s'", get_player_ai_type(get_player(1)));
+   SUT_INT_EQUAL(get_player_ai_type(get_player(0)), 1, "The player ai type should be 1 but is '%d'", get_player_ai_type(get_player(0)));
+   SUT_INT_EQUAL(get_player_ai_type(get_player(1)), 2, "The player ai type should be 2  but is '%d'", get_player_ai_type(get_player(1)));
 
-   SUT_INT_EQUAL(get_player_init_x(get_player(0)), 0, "The player ai type should be 4 but is '%s'", get_player_init_x(get_player(0)));
-   SUT_INT_EQUAL(get_player_init_x(get_player(1)), 4, "The player ai type should be 0  but is '%s'", get_player_init_x(get_player(1)));
+   SUT_INT_EQUAL(get_player_init_x(get_player(0)), 0, "The player x position should be 4 but is '%d'", get_player_init_x(get_player(0)));
+   SUT_INT_EQUAL(get_player_init_x(get_player(1)), 4, "The player x position should be 0  but is '%d'", get_player_init_x(get_player(1)));
 
-    SUT_INT_EQUAL(get_player_init_y(get_player(0)), 4, "The player ai type should be 0 but is '%s'", get_player_init_y(get_player(0)));
-   SUT_INT_EQUAL(get_player_init_y(get_player(1)), 0, "The player ai type should be 4 but is '%s'", get_player_init_y(get_player(1)));
+    SUT_INT_EQUAL(get_player_init_y(get_player(0)), 4, "The player y position should be 0 but is '%d'", get_player_init_y(get_player(0)));
+   SUT_INT_EQUAL(get_player_init_y(get_player(1)), 0, "The player y position should be 4 but is '%d'", get_player_init_y(get_player(1)));
 
-    SUT_INT_EQUAL(get_player_cell_owned(get_player(0)), 1, "The player ai type should be 1 but is '%s'", get_player_cell_owned(get_player(0)));
-   SUT_INT_EQUAL(get_player_cell_owned(get_player(1)), 1, "The player ai type should be 1 but is '%s'", get_player_cell_owned(get_player(1)));
+    SUT_INT_EQUAL(get_player_cell_owned(get_player(0)), 1, "The player number of cells owned should be 1 but is '%d'", get_player_cell_owned(get_player(0)));
+   SUT_INT_EQUAL(get_player_cell_owned(get_player(1)), 1, "The player number of cells owned  be 1 but is '%d'", get_player_cell_owned(get_player(1)));
 
     delete_player(player_list[0]);
     delete_player(player_list[1]);
