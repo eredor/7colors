@@ -9,7 +9,7 @@ int main(void)
     int tournament_happening = 0;
 
     if (tournament_happening) {
-        int ai_type1 = 3;
+        int ai_type1 = 1;
         int ai_type2 = 2;
         int nb_games = 100;
         int victory_1 = tournament_AI(ai_type1, ai_type2, nb_games);

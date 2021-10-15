@@ -20,7 +20,7 @@
 
 /* We want a 30x30 board game by default 
 For the test we used a 5x5 board*/
-#define BOARD_SIZE 5
+#define BOARD_SIZE 30
 /* SPOT for the number of colors */
 #define NB_COLORS 7
 
@@ -864,6 +864,27 @@ SUT_TEST(clean_board){
     return 1;
 }
 
+SUT_TEST(clean_board_visited){
+    set_cell_visited(4, 0, 1);
+    set_cell_visited(4, 1, 1);
+    set_cell_visited(4, 2, 1);
+    set_cell_visited(3, 2, 1);
+    set_cell_visited(2, 2, 1);
+    set_cell_visited(3, 0, 1);
+
+    clean_board_visited(4,0);
+
+    int visited, expected_visited;
+    for(int i = 0; i < BOARD_SIZE; i++){
+        for(int j = 0; j < BOARD_SIZE; j++){
+            visited = get_cell_visited(i, j);
+            expected_visited = board_test[j*BOARD_SIZE + i] -> visited;
+            SUT_INT_EQUAL(visited, expected_visited, "The cell's visited attribute should be %d but is %d", expected_visited, visited);
+        }
+    }
+    return 1;
+}
+
 SUT_TEST(clean_board_turn_visited){
     set_cell_visited(4, 0, 1);
     set_cell_visited(4, 1, 1);
@@ -1239,6 +1260,7 @@ SUT_TEST_SUITE(board) = {
     //Tests for the board
     SUT_TEST_SUITE_ADD(init_board),
     SUT_TEST_SUITE_ADD(clean_board),
+    SUT_TEST_SUITE_ADD(clean_board_visited),
     SUT_TEST_SUITE_ADD(clean_board_turn_visited),
     SUT_TEST_SUITE_ADD(propagate),
     SUT_TEST_SUITE_ADD(update_board),
